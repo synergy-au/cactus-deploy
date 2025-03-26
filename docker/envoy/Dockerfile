@@ -3,7 +3,7 @@ FROM python:3.11-slim-bookworm
 WORKDIR /app
 
 # Deps
-RUN apt update && apt install -y netcat-traditional git && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install --no-install-recommends -y netcat-traditional git && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir git+https://git@github.com/bsgip/envoy.git@v0.12.1#egg=envoy python-json-logger uvicorn
 
 
