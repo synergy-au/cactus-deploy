@@ -30,7 +30,7 @@ while [[ "$#" -gt 0 ]]; do
         -h|--help)
             display_help
             exit 0
-            ;;
+        ;;
         -c|--cert)
             if [[ -n "$2" ]]; then
                 cert_path="$2"
@@ -39,7 +39,7 @@ while [[ "$#" -gt 0 ]]; do
                 echo "Error: --cert requires a path to the certificate file."
                 exit 1
             fi
-            ;;
+        ;;
         -k|--key)
             if [[ -n "$2" ]]; then
                 key_path="$2"
@@ -48,12 +48,12 @@ while [[ "$#" -gt 0 ]]; do
                 echo "Error: --key requires a path to the private key file."
                 exit 1
             fi
-            ;;
+        ;;
         -i|--ingress)
             ingress_name="$2"
             shift
-            ;;
-                  -n|--namespace)
+        ;;
+        -n|--namespace)
             if [[ -n "$2" ]]; then
                 namespace="$2"
                 shift
@@ -61,12 +61,12 @@ while [[ "$#" -gt 0 ]]; do
                 echo "Error: --namespace requires a namespace name."
                 exit 1
             fi
-            ;;
+        ;;
         *)
             echo "Unknown option: $1"
             display_help
             exit 1
-            ;;
+        ;;
     esac
     shift
 done
@@ -139,7 +139,16 @@ existing_tls=$(microk8s kubectl get ingress "$ingress_name" -n "$namespace" -o j
 if echo "$existing_tls" | grep -q "\"$domain\""; then
     echo "Domain '$domain' already exists in Ingress TLS. Only needed to update secret."
 else
-    echo "Adding new TLS entry for '$domain'..."
+    echo "Adding new TLS entry for '$domain' with host routing..."
+    
+    microk8s kubectl patch ingress "$ingress_name" -n "$namespace" --type='json' -p "[
+        {
+    \"op\": \"add\",
+    \"path\": \"/spec/rules/0/host\",
+    \"value\": \"$domain\"
+        }
+    ]"
+    
     if [[ -z "$existing_tls" || "$existing_tls" == "null" ]]; then
         # Initialize tls array if missing
         microk8s kubectl patch ingress "$ingress_name" -n "$namespace" --type='json' -p "[
