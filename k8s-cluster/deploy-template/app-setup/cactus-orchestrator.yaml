@@ -22,8 +22,6 @@ spec:
               name: orchestrator-db-secret
               key: ORCHESTRATOR_DATABASE_URL
 ---
-# TODO: Still unsure how this will be exposed
-# Service to expose the test-orchestration API
 apiVersion: v1
 kind: Service
 metadata:
@@ -33,7 +31,7 @@ spec:
     app: test-orchestration
   ports:
     - protocol: TCP
-      port: 8080
+      port: 80
       targetPort: 8080
       nodePort: 32080  # Expose on host
   type: NodePort
