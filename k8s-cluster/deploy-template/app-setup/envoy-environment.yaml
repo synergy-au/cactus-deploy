@@ -58,6 +58,7 @@ spec:
             - name: RABBITMQ_DEFAULT_PASS
               value: "guest"
 
+        # TODO: consider making this the initContainer, may minimise the need of readiness checks
         - name: envoy-db
           image: timescale/timescaledb:latest-pg10
           ports:
@@ -75,11 +76,14 @@ spec:
           readinessProbe:
             exec:
               command:
-                - pg_isready
+                - psql
                 - -U
                 - test_user
                 - -d
                 - test_db
+                - -c
+                - SELECT 1 FROM site LIMIT 1;
+
             initialDelaySeconds: 5
             periodSeconds: 5
 
