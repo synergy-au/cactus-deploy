@@ -1,0 +1,52 @@
+# Management Pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cactus-ui
+  labels:
+    app: cactus-ui
+spec:
+  serviceAccountName: pod-creator
+  containers:
+    - name: environment
+      image: ${CACTUS_UI_IMAGE}
+      ports:
+        - containerPort: 8080
+      imagePullPolicy: Always
+      env:
+        - name : AUTH0_CLIENT_ID
+          valueFrom:
+              secretKeyRef:
+              name: cactus-ui-oauth2-client-id
+              key: OAUTH2_CLIENT_ID
+        - name: AUTH0_CLIENT_SECRET
+          valueFrom:
+              secretKeyRef:
+              name: cactus-ui-oauth2-client-secret
+              key: OAUTH2_CLIENT_SECRET
+        - name: AUTH0_DOMAIN
+          valueFrom:
+              secretKeyRef:
+              name: cactus-ui-oauth2-domain
+              key: OAUTH2_DOMAIN
+        - name: APP_SECRET_KEY
+          valueFrom:
+              secretKeyRef:
+              name: cactus-ui-app-key
+              key: APP_SECRET_KEY
+        - name: CACTUS_ORCHESTRATOR_BASEURL
+          value: ${CACTUS_ORCHESTRATOR_BASEURL}
+        - name: CACTUS_ORCHESTRATOR_AUDIENCE
+          value: ${CACTUS_ORCHESTRATOR_AUDIENCE}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cactus-ui-service
+spec:
+  selector:
+    app: cactus-ui
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
