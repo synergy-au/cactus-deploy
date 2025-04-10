@@ -29,14 +29,26 @@ microk8s/kubernetes has no out-of-the-box utility for configurable yaml manifest
 
 2. Define a .env file with the following vars:
 ```
+# envoy teststack
 APP_ENVOY_IMAGE='<registry>/<image-name>:<tag>'
+
+# cactus-runner
 CACTUS_RUNNER_IMAGE='<registry>/<image-name>:<tag>'
+
+# cactus-crchestrator
 CACTUS_ORCHESTRATOR_IMAGE='<registry>/<image-name>:<tag>'
-CACTUS_UI_IMAGE='<registry>/<image-name>:<tag>'
 TEST_EXECUTION_FQDN='<subdomain>.<domain>.<tld>'
 TEST_ORCHESTRATION_FQDN='<subdomain>.<domain>.<tld>'
+JWTAUTH_JWKS_URL="<jwks-url>"
+JWTAUTH_ISSUER="<issuer>"
+JWTAUTH_AUDIENCE="<audience>"
+
+# cactus-ui
+CACTUS_UI_IMAGE='<registry>/<image-name>:<tag>'
 CACTUS_ORCHESTRATOR_BASEURL='https://<svc_name>.<namespace>.svc.cluster.local'
-CACTUS_ORCHESTRATOR_AUDIENCE='<oauth2-audience>'
+CACTUS_ORCHESTRATOR_AUDIENCE='<audience>'
+
+
 ```
 
 2. The `templates-to-manifests.sh` script copies the `deploy-template` directory and applies environment variables to the Kubernetes manifest templates. Usage:

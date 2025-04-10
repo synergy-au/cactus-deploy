@@ -16,6 +16,12 @@ spec:
       env:
         - name: TEST_EXECUTION_FQDN
           value: ${TEST_EXECUTION_FQDN}
+        - name: JWTAUTH_JWKS_URL
+          value: ${JWTAUTH_JWKS_URL}
+        - name: JWTAUTH_ISSUER
+          value: ${JWTAUTH_ISSUER}
+        - name: JWTAUTH_AUDIENCE
+          value: ${JWTAUTH_AUDIENCE}
         - name: ORCHESTRATOR_DATABASE_URL
           valueFrom:
             secretKeyRef:
