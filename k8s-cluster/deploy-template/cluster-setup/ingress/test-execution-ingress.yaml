@@ -13,10 +13,10 @@ spec:
   - host: ${TEST_EXECUTION_FQDN}
     http:
       paths:
-      - path: /
+      - path: /_dummy
         pathType: Prefix
         backend:
           service:
-            name: not-found-service
+            name: dummy-service
             port:
               number: 80
