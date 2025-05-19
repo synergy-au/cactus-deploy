@@ -30,7 +30,9 @@ microk8s/kubernetes has no out-of-the-box utility for configurable yaml manifest
 2. Define a .env file with the following vars:
 ```
 # envoy teststack
-APP_ENVOY_IMAGE='<registry>/<image-name>:<tag>'
+CACTUS_ENVOY_APP_IMAGE='<registry>/<image-name>:<tag>'
+CACTUS_ENVOY_DB_IMAGE='<registry>/<image-name>:<tag>'
+CACTUS_TESTSTACK_INIT_IMAGE='<registry>/<image-name>:<tag>'
 
 # cactus-runner
 CACTUS_RUNNER_IMAGE='<registry>/<image-name>:<tag>'
@@ -127,5 +129,5 @@ microk8s kubectl apply -f cactus-orchestrator -n test-orchestration
 
 2. Currently, we create 'template' resources that represent a complete envoy test environments. These are cloned when a client requests a new test environment. Create the template resources with:
 ```
-microk8s kubectl apply -f envoy-environment -n teststack-templates
+microk8s kubectl apply -f envoy-teststack -n teststack-templates
 ```
