@@ -1,5 +1,6 @@
 # BUILD stage
 FROM python:3.12-slim AS build
+ARG CACTUS_ORCHESTRATOR_VERSION
 
 RUN apt update && apt install --no-install-recommends -y git openssh-client && rm -rf /var/lib/apt/lists/*
 
@@ -7,7 +8,7 @@ RUN apt update && apt install --no-install-recommends -y git openssh-client && r
 RUN git config --global url."https://git@github.com/".insteadOf "ssh://git@github.com/"
 
 # Install deps
-RUN pip install --no-cache-dir uvicorn git+ssh://git@github.com/bsgip/cactus-orchestrator.git
+RUN pip install --no-cache-dir uvicorn git+ssh://git@github.com/bsgip/cactus-orchestrator.git@${CACTUS_ORCHESTRATOR_VERSION}
 
 # RUN stage
 FROM python:3.12-slim
