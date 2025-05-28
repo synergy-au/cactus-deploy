@@ -1,4 +1,4 @@
-This README describes the end-to-end setup of the cactus orchestration platform using microk8s. 
+This README describes the end-to-end setup of the cactus orchestration platform using microk8s.
 
 NOTE: All commands should be run on the control plan (head) node unless specified otherwise.
 
@@ -80,7 +80,8 @@ microk8s kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name":
 ```
 microk8s kubectl create secret docker-registry acr-token --docker-server=<somereg.io> --docker-username="<token-name>" --docker-password="<token-pwd>" --namespace test-orchestration
 
-microk8s kubectl patch serviceaccount pod-creator -p '{"imagePullSecrets": [{"name": "acr-token"}]}' --namespace test-orchestration
+microk8s kubectl patch serviceaccount pod-creator -p '{"imagePullSecrets": [{"name": "acr-token"}]}' --namespace test-orchestration # orchestrator app account
+microk8s kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "acr-token"}]}' --namespace test-orchestration # default account, UI app uses this
 ```
 5. Create the ingress load-balancer service and ingress resources
 ```
@@ -90,8 +91,8 @@ microk8s kubectl apply -f ./ingress/user-interface-ingress.yaml -n test-orchestr
 ```
 
 6. Add custom CA certificate and key files as a Kubernetes Secrets in the `test-execution` namespace. We need two secrets:
- 1. For Ingress (contains the CA cert only) to validate the client certificate. 
- 2. For signing client certificates (contains both the CA certificate and key) in the orchestrator app when a new certificate is requested. 
+ 1. For Ingress (contains the CA cert only) to validate the client certificate.
+ 2. For signing client certificates (contains both the CA certificate and key) in the orchestrator app when a new certificate is requested.
 ```
 k8s create secret generic -n test-execution tls-ca-certificate --from-file=ca.crt=<path-to-ca.crt>
 k8s create secret tls tls-ca-cert-key-pair -n test-execution --cert <path-to-ca.crt> --key <path-to-unencrypted-ca.key>
@@ -108,22 +109,22 @@ ingress/install-server-certs.sh --cert </path/to/cert.crt> --key </path/to/key.k
 0. Create Kubernetes Secrets for the applications. NOTE: Refer to the specific applications repository for details regarding the variable being stored in the secret store.
 ```
 # cactus-orchestrator (https://github.com/bsgip/cactus-orchestrator)
-# This secret is the connection string the harness-orchestrator uses to connect to the db. The db is expected to be hosted externally to the cluster but accessible to it. 
+# This secret is the connection string the harness-orchestrator uses to connect to the db. The db is expected to be hosted externally to the cluster but accessible to it.
 kubectl create secret generic orchestrator-db-secret --from-literal=ORCHESTRATOR_DATABASE_URL='<python-sqlalchemy-connstr>'
 
 # cactus-ui (https://github.com/bsgip/cactus-ui)
 # Oauth2 and app related secrets
-kubectl create secret generic -n test-orchestration cactus-ui-oauth2-client-id --from-literal=OAUTH2_CLIENT_ID='<oauth2-client-id>'
-kubectl create secret generic -n test-orchestration cactus-ui-oauth2-client-secret --from-literal=OAUTH2_CLIENT_SECRET='<oauth2-client-secret>'
-kubectl create secret generic -n test-orchestration cactus-ui-oauth2-domain --from-literal=OAUTH2_DOMAIN='<oauth2-domain>'
-kubectl create secret generic -n test-orchestration cactus-ui-app-key --from-literal=APP_SECRET_KEY='<app-secret-key>'
+microk8s kubectl create secret generic -n test-orchestration cactus-ui-oauth2-client-id --from-literal=OAUTH2_CLIENT_ID='<oauth2-client-id>'
+microk8s kubectl create secret generic -n test-orchestration cactus-ui-oauth2-client-secret --from-literal=OAUTH2_CLIENT_SECRET='<oauth2-client-secret>'
+microk8s kubectl create secret generic -n test-orchestration cactus-ui-oauth2-domain --from-literal=OAUTH2_DOMAIN='<oauth2-domain>'
+microk8s kubectl create secret generic -n test-orchestration cactus-ui-app-key --from-literal=APP_SECRET_KEY='<app-secret-key>'
 ```
 1. We create the cactus-orchestrator service. This manages the on-demand creation and deletion of the full 'test environment' stack.
 ```
-microk8s kubectl apply -f cactus-orchestrator -n test-orchestration
+microk8s kubectl apply -f cactus-orchestrator.yaml -n test-orchestration
 ```
 
 2. Currently, we create 'template' resources that represent a complete envoy test environments. These are cloned when a client requests a new test environment. Create the template resources with:
 ```
-microk8s kubectl apply -f envoy-teststack -n teststack-templates
+microk8s kubectl apply -f envoy-teststack.yaml -n teststack-templates
 ```
