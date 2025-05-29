@@ -43,8 +43,6 @@ spec:
             value: "localhost:8000"
           - name: DATABASE_URL
             value: "postgresql+psycopg://test_user:test_pwd@localhost/test_db"
-          - name: KICKOFF_FILE
-            value: /shared/.kickoff
           - name: ENVOY_ENV_FILE
             value: /shared/envoy.env
         volumeMounts:
@@ -78,9 +76,6 @@ spec:
 
       - name: cactus-teststack-init
         image: ${CACTUS_TESTSTACK_INIT_IMAGE}
-        env:
-          - name: "KICKOFF_FILE"
-            value: "/shared/.kickoff"
         volumeMounts:
           - name: shared
             mountPath: /shared
