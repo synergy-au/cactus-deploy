@@ -34,7 +34,9 @@ CACTUS_TESTSTACK_INIT_IMAGE='<registry>/<image-name>:<tag>'
 CACTUS_RUNNER_IMAGE='<registry>/<image-name>:<tag>'
 CACTUS_ORCHESTRATOR_IMAGE='<registry>/<image-name>:<tag>'
 CACTUS_UI_IMAGE='<registry>/<image-name>:<tag>'
-CACTUS_ENVOY_DB_IMAGE=postgres:16
+CACTUS_ENVOY_DB_IMAGE=postgres:15
+
+# NOTE - changing from postgres:15 will require updating the postgresql-client version used in various Dockerfiles
 
 # cactus-orchestrator (https://github/bsgip/cactus-orchestrator)
 TEST_EXECUTION_FQDN='<subdomain>.<domain>.<tld>'

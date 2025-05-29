@@ -13,7 +13,8 @@ RUN pip install --no-cache-dir "git+ssh://git@github.com/bsgip/cactus-runner.git
 # RUN stage
 FROM  python:3.12-slim
 
-RUN apt update && apt install --no-install-recommends -y postgresql-client && rm -rf /var/lib/apt/lists/*
+# This postgresql-client version must align with the postgres version in the k8s pod
+RUN apt update && apt install --no-install-recommends -y postgresql-client-15 && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 RUN mkdir -p config/logging
