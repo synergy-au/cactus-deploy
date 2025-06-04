@@ -13,16 +13,22 @@ RUN pip install --no-cache-dir uvicorn git+ssh://git@github.com/bsgip/cactus-orc
 # RUN stage
 FROM python:3.12-slim
 
+# entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod o+x /entrypoint.sh
+
 RUN useradd -ms /bin/bash appuser
 USER appuser
 
 # Copy env
-COPY --from=build --chown=appuser:appuser /usr/local/lib/  /usr/local/lib/
-COPY --from=build --chown=appuser:appuser /usr/local/bin/  /usr/local/bin/
+COPY --from=build --chown=appuser:appuser /usr/local/lib/ /usr/local/lib/
+COPY --from=build --chown=appuser:appuser /usr/local/bin/ /usr/local/bin/
 
 # conf
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Entrypoint
-CMD ["uvicorn", "--host", "0.0.0.0", "--port", "8080", "--workers", "1", "cactus_orchestrator.main:app"]
+# configurables
+ENV LOG_LEVEL=info
+
+ENTRYPOINT ["/entrypoint.sh"]
