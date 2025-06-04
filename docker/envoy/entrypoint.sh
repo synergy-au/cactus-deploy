@@ -1,19 +1,10 @@
 #!/bin/sh
 
-# Exports variables from environment config file, if exists, then runs envoy app.
-
-if [ -z "$ENVOY_ENV_FILE" ]; then
-  echo "Error: ENVOY_ENV_FILE environment variable not set."
-  exit 1
-fi
-
-if test -f "$ENVOY_ENV_FILE"; then
-  set -a
-    . "$ENVOY_ENV_FILE"
-  set +a
-else
-    echo "No envfile found at $ENVOY_ENV_FILE"
-fi
-
+# Wait for RabbitMQ to be ready
+until nc -z localhost 5672; do
+  echo "Waiting for RabbitMQ to become available..."
+  sleep 2
+done
+echo "RabbitMQ is available, starting envoy..."
 
 uvicorn $APP_MODULE --workers $WORKERS --log-config $LOG_CONFIG --host $HOST --port $PORT
