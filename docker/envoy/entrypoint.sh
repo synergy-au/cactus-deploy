@@ -7,4 +7,4 @@ until nc -z localhost 5672; do
 done
 echo "RabbitMQ is available, starting envoy..."
 
-uvicorn $APP_MODULE --workers $WORKERS --log-config $LOG_CONFIG --host $HOST --port $PORT
+exec uvicorn $APP_MODULE --workers $WORKERS --log-config $LOG_CONFIG --host $HOST --port $PORT
