@@ -47,6 +47,19 @@ spec:
             value: admin
           - name: ENVOY_ADMIN_BASICAUTH_PASSWORD
             value: password
+        readinessProbe:
+          exec:
+            command:
+              - psql
+              - -U
+              - test_user
+              - -d
+              - test_db
+              - -c
+              - SELECT 1 FROM site LIMIT 1;
+
+          initialDelaySeconds: 20
+          periodSeconds: 5
         volumeMounts:
           - name: shared
             mountPath: /shared
@@ -116,6 +129,15 @@ spec:
           image: ${CACTUS_ENVOY_APP_IMAGE}
           ports:
             - containerPort: 8000
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - nc -z localhost 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
           env:
             - name: DATABASE_URL
               value: "postgresql+asyncpg://test_user:test_pwd@localhost/test_db"
@@ -127,6 +149,8 @@ spec:
               value: "amqp://guest:guest@localhost:5672"
             - name: ALLOW_DEVICE_REGISTRATION
               value: "True"
+          readinessProbe:
+
           volumeMounts:
             - name: shared
               mountPath: /shared
