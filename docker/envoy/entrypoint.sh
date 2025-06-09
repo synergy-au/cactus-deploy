@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -n "${RABBIT_MQ_BROKER_URL}" ]; then
     echo "Notifications are enabled. RABBIT_MQ_BROKER_URL has been set."
