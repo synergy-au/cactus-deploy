@@ -4,9 +4,10 @@ on:
   push:
     tags:
       - "release-*"
+  workflow_dispatch:
 
 env:
-  ACR_NAME: cactusimageregistry.azurecr.io
+  ACR_NAME: ghcr.io/synergy-au
 
 jobs:
   build-and-push:
@@ -16,13 +17,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Login to Azure Container Registry
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ env.ACR_NAME }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
 
       - name: Extract tag
         id: extract_tag
