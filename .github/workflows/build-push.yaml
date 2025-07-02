@@ -25,6 +25,13 @@ jobs:
         id: extract_versions_lock
         run: cat docker/versions.lock >> "$GITHUB_ENV"
 
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: cactus-orchestrator
         run: |
           docker build -t ${ACR_NAME}/cactus-orchestrator:${IMAGE_TAG} --build-arg CACTUS_ORCHESTRATOR_VERSION="${CACTUS_ORCHESTRATOR_VERSION}" ./docker/cactus-orchestrator
