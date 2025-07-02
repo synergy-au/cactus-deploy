@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "release-*"
-  workflow_dispatch:
 
 env:
   ACR_NAME: ghcr.io/synergy-au
