@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Deps
 RUN apt update && apt install --no-install-recommends -y git
-RUN pip install --no-cache-dir -e git+https://git@github.com/bsgip/envoy.git@${ENVOY_VERSION}#egg=envoy
+RUN pip install --no-cache-dir -e git+https://git@github.com/synergy-au/envoy.git@${ENVOY_VERSION}#egg=envoy
 RUN pip install --no-cache-dir alembic
 
 WORKDIR /app/src/envoy/src/envoy/server
