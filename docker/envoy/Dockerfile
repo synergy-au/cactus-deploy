@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Deps
 RUN apt update && apt install --no-install-recommends -y netcat-traditional git && rm -rf /var/lib/apt/lists/*
-RUN pip install --no-cache-dir git+https://git@github.com/bsgip/envoy.git@${ENVOY_VERSION}#egg=envoy python-json-logger uvicorn
+RUN pip install --no-cache-dir git+https://git@github.com/synergy-au/envoy.git@${ENVOY_VERSION}#egg=envoy python-json-logger uvicorn
 
 # logging config
 COPY logconf.json ./logconf.json
