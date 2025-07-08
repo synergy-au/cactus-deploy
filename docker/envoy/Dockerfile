@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.12-slim-bookworm
 ARG ENVOY_VERSION
 
 WORKDIR /app
@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir git+https://git@github.com/bsgip/envoy.git@${ENVO
 
 # logging config
 COPY logconf.json ./logconf.json
-RUN mkdir logs
+RUN mkdir /shared
 
 # configurables
 ENV APP_MODULE="envoy.server.main:app"
