@@ -18,7 +18,7 @@ RUN apt update && apt install --no-install-recommends -y postgresql-client-15 &&
 
 WORKDIR /app
 RUN mkdir -p config/logging
-RUN mkdir logs
+RUN mkdir /shared
 COPY ./logconf.json /app/config/logging/config.json
 
 # Copy env

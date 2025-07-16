@@ -44,7 +44,7 @@
             "class": "logging.handlers.RotatingFileHandler",
             "level": "INFO",
             "formatter": "jsonl",
-            "filename": "logs/cactus_runner.jsonl",
+            "filename": "/shared/cactus_runner.jsonl",
             "maxBytes": 10000000,
             "backupCount": 3
         },
