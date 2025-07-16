@@ -27,3 +27,4 @@ The following table is a historical log between platform release tags and the co
 | 22 | `76d49af25c4857e5799354eddf2fcf232eea609b` | `7eceddc643f8625c019d01f8c3114c4d85757cad` | `c02902a43ce7352ce24001cbcd477f91a2ae6ffd` | `681c4c52b62ad4abc7fa49afd38749ba0ac289ac` |
 | 23 | `9902ec6908a9462cff402d21ba9ae30ab65dd88d` | `7eceddc643f8625c019d01f8c3114c4d85757cad` | `c02902a43ce7352ce24001cbcd477f91a2ae6ffd` | `681c4c52b62ad4abc7fa49afd38749ba0ac289ac` |
 | 24 | `9902ec6908a9462cff402d21ba9ae30ab65dd88d` | `7eceddc643f8625c019d01f8c3114c4d85757cad` | `b87dafbf2017a6788a013f3114d1503bc30b645b` | `13fd9c0493c2720926cbd83abdb90fd2c22dae28` |
+| 25 | `9902ec6908a9462cff402d21ba9ae30ab65dd88d` | `7eceddc643f8625c019d01f8c3114c4d85757cad` | `d6cfe3b3dbaaec8ee86601aac43e2dd54dca5d90` | `13fd9c0493c2720926cbd83abdb90fd2c22dae28` |
