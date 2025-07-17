@@ -6,7 +6,7 @@ on:
       - "release-*"
 
 env:
-  ACR_NAME: ghcr.io/synergy-au
+  ACR_NAME: cactusimageregistry.azurecr.io
 
 jobs:
   build-and-push:
@@ -17,6 +17,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Login to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.ACR_NAME }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
       - name: Extract tag
         id: extract_tag
         run: echo "IMAGE_TAG=${GITHUB_REF##*/release-}" >> "$GITHUB_ENV"
@@ -24,13 +31,6 @@ jobs:
       - name: Extract Version
         id: extract_versions_lock
         run: cat docker/versions.lock >> "$GITHUB_ENV"
-
-      - name: Login to Github Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: cactus-orchestrator
         run: |
