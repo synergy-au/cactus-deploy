@@ -36,4 +36,4 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 # Entrypoint
-CMD ["uvicorn", "--host", "0.0.0.0", "--port", "8080", "--workers", "1", "--interface". "--timeout-keep-alive", "180", "--graceful-timeout", "180", "wsgi", "cactus_ui.server:app"]
+CMD ["uvicorn", "--host", "0.0.0.0", "--port", "8080", "--workers", "1", "--interface", "wsgi", "cactus_ui.server:app"]
