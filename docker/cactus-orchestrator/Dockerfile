@@ -30,5 +30,6 @@ ENV PYTHONUNBUFFERED=1
 
 # configurables
 ENV LOG_LEVEL=info
+COPY ./logconf.json /logconf.json
 
 ENTRYPOINT ["/entrypoint.sh"]

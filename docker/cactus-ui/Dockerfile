@@ -34,6 +34,7 @@ COPY --from=build --chown=appuser:appuser /usr/local/bin/  /usr/local/bin/
 # conf
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+COPY ./logconf.json /home/appuser/app/logconf.json
 
 # Entrypoint
 CMD ["uvicorn", "--host", "0.0.0.0", "--port", "8080", "--workers", "1", "--interface", "wsgi", "cactus_ui.server:app"]
