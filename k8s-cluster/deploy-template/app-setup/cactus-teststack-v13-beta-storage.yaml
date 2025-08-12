@@ -1,0 +1,176 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy-svc-v1.3-beta-storage
+spec:
+  selector:
+    app: envoy-v1.3-beta-storage
+  ports:
+    - name: runner
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: envoy-set-v1.3-beta-storage
+spec:
+  selector:
+      matchLabels:
+        app: "envoy-v1.3-beta-storage" # has to match .spec.template.metadata.labels
+  serviceName: "envoy-svc-v1.3-beta-storage"
+  replicas: 1
+  minReadySeconds: 10
+  template:
+    metadata:
+      labels:
+        app: envoy-v1.3-beta-storage
+    spec:
+      volumes:
+        - name: shared
+          emptyDir: {}
+      initContainers:
+      - name: cactus-runner
+        restartPolicy: Always # i.e. side-car
+        image: ${CACTUS_RUNNER_IMAGE}
+        ports:
+          - containerPort: 8080
+        env:
+          - name: APP_PORT
+            value: "8080"
+          - name: SERVER_URL
+            value: "http://localhost:8000"
+          - name: DATABASE_URL
+            value: "postgresql+psycopg://test_user:test_pwd@localhost/test_db"
+          - name: ENVOY_ADMIN_BASICAUTH_USERNAME
+            value: admin
+          - name: ENVOY_ADMIN_BASICAUTH_PASSWORD
+            value: password
+        readinessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - python -c 'import httpx; exit(0) if httpx.get("http://localhost:8080/status").status_code == 200 else exit(1)'
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+        volumeMounts:
+          - name: shared
+            mountPath: /shared
+      - name: envoy-db
+        image: ${CACTUS_ENVOY_DB_IMAGE} # Vanilla postgres docker image e.g. postgres:15
+        restartPolicy: Always # i.e. side-car
+        ports:
+          - containerPort: 5432
+        env:
+          - name: POSTGRES_USER
+            value: "test_user"
+          - name: POSTGRES_PASSWORD
+            value: "test_pwd"
+          - name: POSTGRES_DB
+            value: "test_db"
+        readinessProbe:
+          exec:
+            command:
+              - psql
+              - -U
+              - test_user
+              - -d
+              - test_db
+              - -c
+              - SELECT 1 FROM site LIMIT 1;
+
+          initialDelaySeconds: 20
+          periodSeconds: 5
+
+      - name: cactus-teststack-init
+        image: ${CACTUS_TESTSTACK_INIT_IMAGE}
+        env:
+          - name: ENVOY_DATABASE_URL
+            value: "postgresql://test_user:test_pwd@localhost/test_db"
+        volumeMounts:
+          - name: shared
+            mountPath: /shared
+
+      containers:
+        - name: rabbit-mq
+          image: rabbitmq:3-management
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: "guest"
+            - name: RABBITMQ_DEFAULT_PASS
+              value: "guest"
+
+        - name: taskiq-worker
+          image: ${CACTUS_ENVOY_APP_IMAGE}
+          command: ["taskiq", "worker", "envoy.notification.main:broker", "envoy.notification.task"]
+          env:
+            - name: DATABASE_URL
+              value: "postgresql+asyncpg://test_user:test_pwd@localhost:5432/test_db"
+            - name: CERT_HEADER
+              value: "ssl-client-cert"
+            - name: ENABLE_NOTIFICATIONS
+              value: "True"
+            - name: RABBIT_MQ_BROKER_URL
+              value: "amqp://guest:guest@localhost:5672"
+            - name: ALLOW_DEVICE_REGISTRATION
+              value: "True"
+
+        - name: envoy
+          image: ${CACTUS_ENVOY_APP_IMAGE}
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - nc -z localhost 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+          env:
+            - name: DATABASE_URL
+              value: "postgresql+asyncpg://test_user:test_pwd@localhost/test_db"
+            - name: CERT_HEADER
+              value: "ssl-client-cert"
+            - name: ENABLE_NOTIFICATIONS
+              value: "True"
+            - name: RABBIT_MQ_BROKER_URL
+              value: "amqp://guest:guest@localhost:5672"
+            - name: ALLOW_DEVICE_REGISTRATION
+              value: "True"
+          readinessProbe:
+
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+
+        - name: envoy-admin
+          image: ${CACTUS_ENVOY_APP_IMAGE}
+          ports:
+            - containerPort: 8001
+          env:
+            - name: APP_MODULE
+              value: "envoy.admin.main:app"
+            - name: PORT
+              value: "8001"
+            - name: DATABASE_URL
+              value: "postgresql+asyncpg://test_user:test_pwd@localhost/test_db"
+            - name: CERT_HEADER
+              value: "ssl-client-cert"
+            - name: ENABLE_NOTIFICATIONS
+              value: "True"
+            - name: RABBIT_MQ_BROKER_URL
+              value: "amqp://guest:guest@localhost:5672"
+            - name: ALLOW_DEVICE_REGISTRATION
+              value: "True"
+            - name: ADMIN_USERNAME
+              value: "admin"
+            - name: ADMIN_PASSWORD
+              value: "password"
