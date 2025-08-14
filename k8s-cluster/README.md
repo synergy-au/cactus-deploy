@@ -120,12 +120,17 @@ microk8s kubectl create secret generic -n test-orchestration cactus-ui-oauth2-cl
 microk8s kubectl create secret generic -n test-orchestration cactus-ui-oauth2-domain --from-literal=OAUTH2_DOMAIN='<oauth2-domain>'
 microk8s kubectl create secret generic -n test-orchestration cactus-ui-app-key --from-literal=APP_SECRET_KEY='<app-secret-key>'
 ```
-1. We create the cactus-orchestrator service. This manages the on-demand creation and deletion of the full 'test environment' stack.
+1. Create the cactus-teststack-imagepuller DaemonSet. This will ensure that all current/future nodes "pre pull" all docker images (improving first startup times)
+```
+microk8s kubectl apply -f cactus-teststack-imagepuller.yaml -n teststack-templates
+```
+
+2. We create the cactus-orchestrator service. This manages the on-demand creation and deletion of the full 'test environment' stack.
 ```
 microk8s kubectl apply -f cactus-orchestrator.yaml -n test-orchestration
 ```
 
-2. Currently, we create 'template' resources that represent a complete envoy test environments. These are cloned when a client requests a new test environment. Create the template resources with:
+3. Currently, we create 'template' resources that represent a complete envoy test environments. These are cloned when a client requests a new test environment. Create the template resources with:
 ```
 microk8s kubectl apply -f envoy-teststack.yaml -n teststack-templates
 ```

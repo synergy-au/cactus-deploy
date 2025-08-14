@@ -33,7 +33,7 @@ spec:
       initContainers:
       - name: cactus-runner
         restartPolicy: Always # i.e. side-car
-        image: ${CACTUS_RUNNER_IMAGE}
+        image: ${CACTUS_RUNNER_IMAGE_V13_BETA_STORAGE}
         ports:
           - containerPort: 8080
         env:
@@ -60,7 +60,7 @@ spec:
           - name: shared
             mountPath: /shared
       - name: envoy-db
-        image: ${CACTUS_ENVOY_DB_IMAGE} # Vanilla postgres docker image e.g. postgres:15
+        image: ${CACTUS_ENVOY_DB_IMAGE_V13_BETA_STORAGE} # Vanilla postgres docker image e.g. postgres:15
         restartPolicy: Always # i.e. side-car
         ports:
           - containerPort: 5432
@@ -86,7 +86,7 @@ spec:
           periodSeconds: 5
 
       - name: cactus-teststack-init
-        image: ${CACTUS_TESTSTACK_INIT_IMAGE}
+        image: ${CACTUS_TESTSTACK_INIT_IMAGE_V13_BETA_STORAGE}
         env:
           - name: ENVOY_DATABASE_URL
             value: "postgresql://test_user:test_pwd@localhost/test_db"
@@ -107,7 +107,7 @@ spec:
               value: "guest"
 
         - name: taskiq-worker
-          image: ${CACTUS_ENVOY_APP_IMAGE}
+          image: ${CACTUS_ENVOY_APP_IMAGE_V13_BETA_STORAGE}
           command: ["taskiq", "worker", "envoy.notification.main:broker", "envoy.notification.task"]
           env:
             - name: DATABASE_URL
@@ -122,7 +122,7 @@ spec:
               value: "True"
 
         - name: envoy
-          image: ${CACTUS_ENVOY_APP_IMAGE}
+          image: ${CACTUS_ENVOY_APP_IMAGE_V13_BETA_STORAGE}
           ports:
             - containerPort: 8000
           readinessProbe:
@@ -152,7 +152,7 @@ spec:
               mountPath: /shared
 
         - name: envoy-admin
-          image: ${CACTUS_ENVOY_APP_IMAGE}
+          image: ${CACTUS_ENVOY_APP_IMAGE_V13_BETA_STORAGE}
           ports:
             - containerPort: 8001
           env:
