@@ -14,6 +14,12 @@ spec:
     spec:
       initContainers:
         # These init containers will force k8's to pull all the specified images across all nodes
+        - name: common-orchestrator
+          image: ${CACTUS_ORCHESTRATOR_IMAGE}
+          command: ["sh", "-c", "'true'"]
+        - name: common-ui
+          image: ${CACTUS_UI_IMAGE}
+          command: ["sh", "-c", "'true'"]
         - name: v12-runner
           image: ${CACTUS_RUNNER_IMAGE_V12}
           command: ["sh", "-c", "'true'"]
