@@ -3,12 +3,17 @@ kind: Ingress
 metadata:
   name: test-execution-ingress
   annotations:
+    cert-manager.io/issuer: letsencrypt
     nginx.ingress.kubernetes.io/auth-tls-secret: "test-execution/tls-ca-certificate"
     nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
     nginx.ingress.kubernetes.io/auth-tls-verify-depth: "1"
     nginx.ingress.kubernetes.io/auth-tls-pass-certificate-to-upstream: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
+  tls:
+  - hosts:
+    - ${TEST_EXECUTION_FQDN}
+    secretName: test-execution-ingress-tls
   rules:
   - host: ${TEST_EXECUTION_FQDN}
     http:
