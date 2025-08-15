@@ -16,6 +16,7 @@ complete -o default -F __start_kubectl k8s
 4. On the designated control plane node, run `microk8s add-node` and follow instructions returned to add other nodes (as workers) to the cluster. No further steps are needed on the worker nodes. You can check nodes are connected by running `microk8s kubectl get nodes` on the control plane node.
 5. Enable the following addons:
 ```
+microk8s enable cert-manager
 microk8s enable ingress dns
 ```
 6. Enable the IP advitiser addon: `microk8s enable metallb`. It will ask for an IP range for the load balancer - since we only need one, assign a free static IP that you want to expose for your FQDN. It will request a range, just provide a single value range e.g. 192.168.1.1-192.168.1.1
@@ -28,6 +29,9 @@ microk8s/kubernetes has no out-of-the-box utility for configurable yaml manifest
 2. Define a .env file with the following vars:
 NOTE: For more information regarding the environment variables, refer to the associated repository.
 ```
+# general
+LETS_ENCRYPT_EMAIL='<sysadmin@example.com>'
+
 # images
 CACTUS_ENVOY_APP_IMAGE='<registry>/<image-name>:<tag>'
 CACTUS_TESTSTACK_INIT_IMAGE='<registry>/<image-name>:<tag>'
@@ -87,6 +91,8 @@ microk8s kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name":
 ```
 5. Create the ingress load-balancer service and ingress resources
 ```
+microk8s kubectl apply -f ./ingress/lets-encrypt-issuer.yaml -n test-execution
+microk8s kubectl apply -f ./ingress/lets-encrypt-issuer.yaml -n test-orchestration
 microk8s kubectl apply -f ./ingress/load-balancer-svc.yaml -n ingress
 microk8s kubectl apply -f ./ingress/test-execution-ingress.yaml -n test-execution
 microk8s kubectl apply -f ./ingress/user-interface-ingress.yaml -n test-orchestration
@@ -100,13 +106,6 @@ k8s create secret generic -n test-execution tls-ca-certificate --from-file=ca.cr
 k8s create secret tls tls-ca-cert-key-pair -n test-execution --cert <path-to-ca.crt> --key <path-to-unencrypted-ca.key>
 ```
 
-7. Add server certificate/key secrets.
-```
-# for test-execution ingress
-ingress/install-server-certs.sh --cert </path/to/cert.crt> --key </path/to/key.key> --namespace test-execution --ingress test-execution-ingress
-
-ingress/install-server-certs.sh --cert </path/to/cert.crt> --key </path/to/key.key> --namespace test-orchestration --ingress user-interface-ingress
-```
 ## K8s resource setup (./app-setup)
 0. Create Kubernetes Secrets for the applications. NOTE: Refer to the specific applications repository for details regarding the variable being stored in the secret store.
 ```
@@ -121,12 +120,17 @@ microk8s kubectl create secret generic -n test-orchestration cactus-ui-oauth2-cl
 microk8s kubectl create secret generic -n test-orchestration cactus-ui-oauth2-domain --from-literal=OAUTH2_DOMAIN='<oauth2-domain>'
 microk8s kubectl create secret generic -n test-orchestration cactus-ui-app-key --from-literal=APP_SECRET_KEY='<app-secret-key>'
 ```
-1. We create the cactus-orchestrator service. This manages the on-demand creation and deletion of the full 'test environment' stack.
+1. Create the cactus-teststack-imagepuller DaemonSet. This will ensure that all current/future nodes "pre pull" all docker images (improving first startup times)
+```
+microk8s kubectl apply -f cactus-teststack-imagepuller.yaml -n teststack-templates
+```
+
+2. We create the cactus-orchestrator service. This manages the on-demand creation and deletion of the full 'test environment' stack.
 ```
 microk8s kubectl apply -f cactus-orchestrator.yaml -n test-orchestration
 ```
 
-2. Currently, we create 'template' resources that represent a complete envoy test environments. These are cloned when a client requests a new test environment. Create the template resources with:
+3. Currently, we create 'template' resources that represent a complete envoy test environments. These are cloned when a client requests a new test environment. Create the template resources with:
 ```
 microk8s kubectl apply -f envoy-teststack.yaml -n teststack-templates
 ```
