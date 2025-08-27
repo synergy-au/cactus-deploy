@@ -48,13 +48,12 @@ spec:
           - name: ENVOY_ADMIN_BASICAUTH_PASSWORD
             value: password
         readinessProbe:
-          exec:
-            command:
-              - sh
-              - -c
-              - python -c 'import httpx; exit(0) if httpx.get("http://localhost:8080/health").status_code == 200 else exit(1)'
-          initialDelaySeconds: 5
-          periodSeconds: 5
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 2
+          periodSeconds: 2
+          failureThreshold: 60 # 2 minutes of failure
 
         volumeMounts:
           - name: shared
@@ -82,8 +81,9 @@ spec:
               - -c
               - SELECT 1 FROM site LIMIT 1;
 
-          initialDelaySeconds: 20
-          periodSeconds: 5
+          initialDelaySeconds: 0
+          periodSeconds: 1
+          failureThreshold: 60 # 60 seconds of failures
 
       - name: cactus-teststack-init
         image: ${CACTUS_TESTSTACK_INIT_IMAGE_V13_BETA_STORAGE}
@@ -126,6 +126,7 @@ spec:
           ports:
             - containerPort: 8000
           readinessProbe:
+            # NOTE - this should be swapped to /status/health?check_data=false as soon as the 1.3-beta-storage images are updated
             exec:
               command:
                 - sh
@@ -145,7 +146,6 @@ spec:
               value: "amqp://guest:guest@localhost:5672"
             - name: ALLOW_DEVICE_REGISTRATION
               value: "True"
-          readinessProbe:
 
           volumeMounts:
             - name: shared
@@ -174,3 +174,14 @@ spec:
               value: "admin"
             - name: ADMIN_PASSWORD
               value: "password"
+          readinessProbe:
+            # NOTE - this should be swapped to /status/health?check_data=false as soon as the 1.3-beta-storage images are updated
+            httpGet:
+              path: /aggregator
+              port: 8001
+              httpHeaders:
+                - name: Authorization
+                  value: Basic YWRtaW46cGFzc3dvcmQ=
+            initialDelaySeconds: 2
+            periodSeconds: 2
+            failureThreshold: 60 # 2 minutes of failure
