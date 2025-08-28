@@ -10,7 +10,7 @@
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "default",
-            "level": "DEBUG",
+            "level": "INFO",
             "stream": "ext://sys.stdout"
         }
     },
@@ -43,7 +43,7 @@
             "propagate": false
         },
         "cactus_orchestrator": {
-            "level": "DEBUG",
+            "level": "INFO",
             "handlers": [
                 "console"
             ],

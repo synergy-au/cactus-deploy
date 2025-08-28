@@ -83,7 +83,7 @@ spec:
 
           initialDelaySeconds: 0
           periodSeconds: 1
-          failureThreshold: 60 # 60 seconds of failures
+          failureThreshold: 120 # 2 minutes of failures
 
       - name: cactus-teststack-init
         image: ${CACTUS_TESTSTACK_INIT_IMAGE_V13_BETA_STORAGE}
@@ -132,9 +132,10 @@ spec:
                 - sh
                 - -c
                 - nc -z localhost 8000
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            initialDelaySeconds: 2
+            periodSeconds: 2
             timeoutSeconds: 2
+            failureThreshold: 60 # 2 minutes of failure
           env:
             - name: DATABASE_URL
               value: "postgresql+asyncpg://test_user:test_pwd@localhost/test_db"
