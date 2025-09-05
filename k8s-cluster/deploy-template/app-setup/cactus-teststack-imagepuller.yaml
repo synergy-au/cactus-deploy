@@ -4,6 +4,10 @@ metadata:
   name: cactus-teststack-imagepuller
   namespace: teststack-templates
 spec:
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 100% # Allow every node to start pulling images immediately
   selector:
     matchLabels:
       name: cactus-teststack-imagepuller
