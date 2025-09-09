@@ -23,12 +23,13 @@ OID_2030_5_ID_ON_HARDWARE_MODULE_NAME="1.3.6.1.5.5.7.8.4"
 #
 
 usage() {
-    echo "create-cert SERCA_ID [CHAIN_ID] [CHAIN_SERIAL] [SERVER_DNS] [SERVER_SERIAL]"
+    echo "create-cert SERCA_ID SERCA_SERIAL [CHAIN_ID] [CHAIN_SERIAL] [SERVER_DNS] [SERVER_SERIAL]"
     echo ""
     echo "Creates the specified chain of certificate(s) and keys up to the last specified parameter."
     echo "Will NOT replace existing certs (you will need to manually delete those to force a refresh)"
     echo ""
     echo "SERCA_ID = Mandatory unique id of the root SERCA"
+    echo "SERCA_SERIAL = Mandatory unique serial number for the SERCA - purely informational"
     echo "CHAIN_ID = Optional unique id for the MCA/MICA chain underneath SERCA_ID"
     echo "CHAIN_SERIAL = Optional unique number for the MCA/MICA chain serial number underneath SERCA_ID"
     echo "SERVER_DNS = Optional will create a DNS server certificate underneath the specified MCA/MICA chain"
@@ -43,21 +44,29 @@ calculate_key_identifier() {
     local pub_file=$2
 
     # Generate subjectKeyIdentifier from the public key (Method is referenced in 2030.5 - Section 6.11.6)
-    # Method requires the least significant 60 bits of the SHA-1 public key 
+    # From - 4.2.1.2 of IETF RFC 5280
+    # Method requires the least significant 60 bits of the SHA-1 public key (or last 15 hex chars)
     openssl ec -in "$key_file" -pubout -outform DER -out "$pub_file" || { echo "Failure to extract public key"; exit 1; }
     local sha1_hash=$(openssl dgst -sha1 -binary "$pub_file" | xxd -p)
-    echo "4${sha1_hash:15}"
+    echo "4${sha1_hash:(-15)}"
     return 0
 }
 
 # Parse parameters
 SERCA_ID="$1"
-CHAIN_ID="$2"
-CHAIN_SERIAL="$3"
-SERVER_DNS="$4"
-SERVER_SERIAL="$5"
+SERCA_SERIAL="$2"
+CHAIN_ID="$3"
+CHAIN_SERIAL="$4"
+SERVER_DNS="$5"
+SERVER_SERIAL="$6"
 if [[ -z "${SERCA_ID}" ]]; then
     echo "ERROR - No SERCA_ID specified."
+    echo ""
+    usage
+fi
+
+if [[ -z "${SERCA_SERIAL}" ]]; then
+    echo "ERROR - No SERCA_SERIAL specified."
     echo ""
     usage
 fi
@@ -107,8 +116,9 @@ prompt = no
 basicConstraints       = critical,CA:true
 keyUsage               = critical, keyCertSign, cRLSign
 subjectKeyIdentifier   = $KEY_IDENTIFIER
+certificatePolicies    = critical,$OID_DEV_POST_MANUFACTURE,$OID_2030_5_POLICY_TEST
 EOL
-    openssl req -new -key "$SERCA_KEY_FILE" -out "$SERCA_CSR_FILE" -config "$SERCA_CFG_FILE" -subj '/O=Smart Energy/CN=IEEE 2030.5 Root' || { echo "Failure to generate CSR"; exit 1; }
+    openssl req -new -key "$SERCA_KEY_FILE" -out "$SERCA_CSR_FILE" -config "$SERCA_CFG_FILE" -subj "/O=Smart Energy/CN=IEEE 2030.5 Root/serialNumber=$SERCA_SERIAL" || { echo "Failure to generate CSR"; exit 1; }
     openssl x509 -req -in "$SERCA_CSR_FILE" -signkey "$SERCA_KEY_FILE" -out "$SERCA_CERT_FILE" -days $days_until_9999 -extfile "$SERCA_CFG_FILE" -extensions serca_ca -sha256 || { echo "Failure to generate CERT"; exit 1; }
     echo "Generated: $SERCA_KEY_FILE" 
     echo "Generated: $SERCA_CERT_FILE" 
@@ -153,9 +163,9 @@ prompt = no
 subjectKeyIdentifier   = $KEY_IDENTIFIER
 basicConstraints       = critical,CA:true,pathlen:1
 keyUsage               = critical, keyCertSign
-certificatePolicies    = $OID_DEV_GENERIC,$OID_2030_5_POLICY_TEST
+certificatePolicies    = critical,$OID_DEV_POST_MANUFACTURE,$OID_2030_5_POLICY_TEST
 EOL
-    openssl req -new -key "$MCA_KEY_FILE" -out "$MCA_CSR_FILE" -config "$MCA_CFG_FILE" -subj "/C=AU/O=CACTUS $CHAIN_ID/CN=IEEE 2030.5 MCA,serialNumber=$CHAIN_SERIAL" || { echo "Failure to generate CSR"; exit 1; }
+    openssl req -new -key "$MCA_KEY_FILE" -out "$MCA_CSR_FILE" -config "$MCA_CFG_FILE" -subj "/C=AU/O=CACTUS/CN=IEEE 2030.5 MCA/serialNumber=$CHAIN_ID MCA $CHAIN_SERIAL" || { echo "Failure to generate CSR"; exit 1; }
     openssl x509 -req -in "$MCA_CSR_FILE" -CA "$SERCA_CERT_FILE" -CAkey "$SERCA_KEY_FILE" -set_serial "$CHAIN_SERIAL" -out "$MCA_CERT_FILE" -days $days_until_9999 -extfile "$MCA_CFG_FILE" -extensions mca_ca -sha256
     echo "Generated: $MCA_KEY_FILE" 
     echo "Generated: $MCA_CERT_FILE" 
@@ -194,9 +204,9 @@ prompt = no
 subjectKeyIdentifier   = $KEY_IDENTIFIER
 basicConstraints       = critical,CA:true,pathlen:0
 keyUsage               = critical, keyCertSign
-certificatePolicies    = $OID_DEV_GENERIC,$OID_2030_5_POLICY_TEST
+certificatePolicies    = critical,$OID_DEV_POST_MANUFACTURE,$OID_2030_5_POLICY_TEST
 EOL
-    openssl req -new -key "$MICA_KEY_FILE" -out "$MICA_CSR_FILE" -config "$MICA_CFG_FILE" -subj "/C=AU/O=CACTUS $CHAIN_ID/CN=IEEE 2030.5 MICA,serialNumber=$CHAIN_SERIAL" || { echo "Failure to generate CSR"; exit 1; }
+    openssl req -new -key "$MICA_KEY_FILE" -out "$MICA_CSR_FILE" -config "$MICA_CFG_FILE" -subj "/C=AU/O=CACTUS/CN=IEEE 2030.5 MICA/serialNumber=$CHAIN_ID MICA $CHAIN_SERIAL" || { echo "Failure to generate CSR"; exit 1; }
     openssl x509 -req -in "$MICA_CSR_FILE" -CA "$MCA_CERT_FILE" -CAkey "$MCA_KEY_FILE" -set_serial "$CHAIN_SERIAL" -out "$MICA_CERT_FILE" -days $days_until_9999 -extfile "$MICA_CFG_FILE" -extensions mica_ca -sha256
     echo "Generated: $MICA_KEY_FILE" 
     echo "Generated: $MICA_CERT_FILE" 
@@ -240,7 +250,7 @@ prompt = no
 [ server ]
 subjectKeyIdentifier   = $KEY_IDENTIFIER
 keyUsage               = critical, keyAgreement, digitalSignature
-certificatePolicies    = $OID_DEV_GENERIC,$OID_2030_5_POLICY_TEST
+certificatePolicies    = critical,$OID_DEV_POST_MANUFACTURE,$OID_2030_5_POLICY_TEST
 subjectAltName         = critical,@alt_names
 
 [ empty_distinguished_name ]
