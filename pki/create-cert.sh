@@ -116,7 +116,7 @@ prompt = no
 basicConstraints       = critical,CA:true
 keyUsage               = critical, keyCertSign, cRLSign
 subjectKeyIdentifier   = $KEY_IDENTIFIER
-certificatePolicies    = critical,$OID_DEV_POST_MANUFACTURE,$OID_2030_5_POLICY_TEST
+certificatePolicies    = critical,2.5.29.32.0
 EOL
     openssl req -new -key "$SERCA_KEY_FILE" -out "$SERCA_CSR_FILE" -config "$SERCA_CFG_FILE" -subj "/O=Smart Energy/CN=IEEE 2030.5 Root/serialNumber=$SERCA_SERIAL" || { echo "Failure to generate CSR"; exit 1; }
     openssl x509 -req -in "$SERCA_CSR_FILE" -signkey "$SERCA_KEY_FILE" -out "$SERCA_CERT_FILE" -days $days_until_9999 -extfile "$SERCA_CFG_FILE" -extensions serca_ca -sha256 || { echo "Failure to generate CERT"; exit 1; }
