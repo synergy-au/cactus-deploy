@@ -149,8 +149,6 @@ spec:
               value: "True"
             - name: STATIC_REGISTRATION_PIN
               value: "11111"
-            - name: SITE_CONTROL_POW10_ENCODING
-              value: "0"
 
           volumeMounts:
             - name: shared

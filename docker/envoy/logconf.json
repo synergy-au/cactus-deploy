@@ -1,6 +1,12 @@
 {
     "version": 1,
     "disable_existing_loggers": false,
+    "filters": {
+        "exclude_health_checks": {
+            "()": "envoy.logfilters.ExcludeMessageFilter",
+            "exclude_str": "/status/version"
+        }
+    },
     "formatters": {
         "jsonl": {
             "class": "pythonjsonlogger.jsonlogger.JsonFormatter",
@@ -50,6 +56,9 @@
         },
         "uvicorn.access": {
             "level": "INFO",
+            "filters": [
+                "exclude_health_checks"
+            ],
             "handlers": [
                 "stdout",
                 "file"
