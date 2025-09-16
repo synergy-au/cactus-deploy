@@ -120,6 +120,9 @@ spec:
               value: "amqp://guest:guest@localhost:5672"
             - name: ALLOW_DEVICE_REGISTRATION
               value: "True"
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
 
         - name: envoy
           image: ${CACTUS_ENVOY_APP_IMAGE_V13_BETA_STORAGE}
@@ -136,6 +139,7 @@ spec:
             periodSeconds: 2
             timeoutSeconds: 2
             failureThreshold: 60 # 2 minutes of failure
+            
           env:
             - name: DATABASE_URL
               value: "postgresql+asyncpg://test_user:test_pwd@localhost/test_db"
@@ -188,3 +192,6 @@ spec:
             initialDelaySeconds: 2
             periodSeconds: 2
             failureThreshold: 60 # 2 minutes of failure
+          volumeMounts:
+            - name: shared
+              mountPath: /shared

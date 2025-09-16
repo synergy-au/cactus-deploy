@@ -120,6 +120,9 @@ spec:
               value: "amqp://guest:guest@localhost:5672"
             - name: ALLOW_DEVICE_REGISTRATION
               value: "True"
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
 
         - name: envoy
           image: ${CACTUS_ENVOY_APP_IMAGE_V12}
@@ -180,3 +183,6 @@ spec:
             initialDelaySeconds: 2
             periodSeconds: 2
             failureThreshold: 60 # 2 minutes of failure
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
