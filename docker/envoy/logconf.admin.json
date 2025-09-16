@@ -28,34 +28,10 @@
             "formatter": "standard",
             "stream": "ext://sys.stderr"
         },
-        "uvicornfile": {
+        "sharefile": {
             "class": "logging.handlers.RotatingFileHandler",
-            "formatter": "jsonl",
-            "filename": "/shared/uvicorn.jsonl",
-            "maxBytes": 10485760,
-            "backupCount": 5,
-            "encoding": "utf-8"
-        },
-        "serverfile": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "formatter": "jsonl",
-            "filename": "/shared/envoy.server.jsonl",
-            "maxBytes": 10485760,
-            "backupCount": 5,
-            "encoding": "utf-8"
-        },
-        "adminfile": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "formatter": "jsonl",
-            "filename": "/shared/envoy.admin.jsonl",
-            "maxBytes": 10485760,
-            "backupCount": 5,
-            "encoding": "utf-8"
-        },
-        "notificationfile": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "formatter": "jsonl",
-            "filename": "/shared/envoy.notification.jsonl",
+            "formatter": "standard",
+            "filename": "/shared/envoy.admin.log",
             "maxBytes": 10485760,
             "backupCount": 5,
             "encoding": "utf-8"
@@ -66,7 +42,7 @@
             "level": "INFO",
             "handlers": [
                 "stdout",
-                "uvicornfile"
+                "sharefile"
             ],
             "propagate": false
         },
@@ -74,7 +50,7 @@
             "level": "ERROR",
             "handlers": [
                 "stderr",
-                "uvicornfile"
+                "sharefile"
             ],
             "propagate": false
         },
@@ -85,40 +61,26 @@
             ],
             "handlers": [
                 "stdout",
-                "uvicornfile"
+                "sharefile"
             ],
             "propagate": false
         },
-        "envoy.server": {
-            "level": "INFO",
+        "envoy": {
+            "level": "DEBUG",
             "filters": [
                 "exclude_health_checks"
             ],
             "handlers": [
                 "stdout",
-                "serverfile"
+                "sharefile"
             ],
             "propagate": false
         },
-        "envoy.admin": {
-            "level": "INFO",
-            "filters": [
-                "exclude_health_checks"
-            ],
+        "fastapi": {
+            "level": "ERROR",
             "handlers": [
                 "stdout",
-                "adminfile"
-            ],
-            "propagate": false
-        },
-        "envoy.notification": {
-            "level": "INFO",
-            "filters": [
-                "exclude_health_checks"
-            ],
-            "handlers": [
-                "stdout",
-                "notificationfile"
+                "sharefile"
             ],
             "propagate": false
         }

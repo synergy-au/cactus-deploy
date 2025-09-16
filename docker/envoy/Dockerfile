@@ -8,13 +8,15 @@ RUN apt update && apt install --no-install-recommends -y netcat-traditional git 
 RUN pip install --no-cache-dir git+https://git@github.com/bsgip/envoy.git@${ENVOY_VERSION}#egg=envoy python-json-logger uvicorn
 
 # logging config
-COPY logconf.json ./logconf.json
+COPY logconf.admin.json ./logconf.admin.json
+COPY logconf.notification.json ./logconf.notification.json
+COPY logconf.server.json ./logconf.server.json
 RUN mkdir /shared
 
 # configurables
 ENV APP_MODULE="envoy.server.main:app"
 ENV WORKERS=1
-ENV LOG_CONFIG=logconf.json
+ENV LOG_CONFIG=logconf.server.json
 ENV HOST=0.0.0.0
 ENV PORT=8000
 
