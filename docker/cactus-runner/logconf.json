@@ -7,9 +7,8 @@
         }
     },
     "formatters": {
-        "simple": {
-            "format": "%(levelname)s: %(message)s",
-            "datefmt": "%Y-%m-%dT%H:%M:%S%z"
+        "standard": {
+            "format": "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
         },
         "jsonl": {
             "()": "cactus_runner.app.log.JSONLFormatter",
@@ -31,20 +30,20 @@
             "filters": [
                 "no_errors"
             ],
-            "formatter": "simple",
+            "formatter": "standard",
             "stream": "ext://sys.stdout"
         },
         "stderr": {
             "class": "logging.StreamHandler",
             "level": "WARNING",
-            "formatter": "simple",
+            "formatter": "standard",
             "stream": "ext://sys.stderr"
         },
-        "jsonlfile": {
+        "sharefile": {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "INFO",
-            "formatter": "jsonl",
-            "filename": "/shared/cactus_runner.jsonl",
+            "formatter": "standard",
+            "filename": "/shared/cactus_runner.log",
             "maxBytes": 10000000,
             "backupCount": 3
         },
@@ -53,7 +52,7 @@
             "handlers": [
                 "stdout",
                 "stderr",
-                "jsonlfile"
+                "sharefile"
             ],
             "respect_handler_level": true
         }

@@ -28,10 +28,10 @@
             "formatter": "standard",
             "stream": "ext://sys.stderr"
         },
-        "file": {
+        "sharefile": {
             "class": "logging.handlers.RotatingFileHandler",
-            "formatter": "jsonl",
-            "filename": "/shared/envoy.jsonl",
+            "formatter": "standard",
+            "filename": "/shared/envoy.admin.log",
             "maxBytes": 10485760,
             "backupCount": 5,
             "encoding": "utf-8"
@@ -42,7 +42,7 @@
             "level": "INFO",
             "handlers": [
                 "stdout",
-                "file"
+                "sharefile"
             ],
             "propagate": false
         },
@@ -50,7 +50,7 @@
             "level": "ERROR",
             "handlers": [
                 "stderr",
-                "file"
+                "sharefile"
             ],
             "propagate": false
         },
@@ -61,7 +61,26 @@
             ],
             "handlers": [
                 "stdout",
-                "file"
+                "sharefile"
+            ],
+            "propagate": false
+        },
+        "envoy": {
+            "level": "DEBUG",
+            "filters": [
+                "exclude_health_checks"
+            ],
+            "handlers": [
+                "stdout",
+                "sharefile"
+            ],
+            "propagate": false
+        },
+        "fastapi": {
+            "level": "ERROR",
+            "handlers": [
+                "stdout",
+                "sharefile"
             ],
             "propagate": false
         }

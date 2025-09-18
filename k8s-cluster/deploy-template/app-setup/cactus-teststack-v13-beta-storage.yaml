@@ -108,7 +108,7 @@ spec:
 
         - name: taskiq-worker
           image: ${CACTUS_ENVOY_APP_IMAGE_V13_BETA_STORAGE}
-          command: ["taskiq", "worker", "envoy.notification.main:broker", "envoy.notification.task"]
+          command: ["taskiq", "worker", "envoy.notification.main:broker", "envoy.notification.task.check", "envoy.notification.task.transmit"]
           env:
             - name: DATABASE_URL
               value: "postgresql+asyncpg://test_user:test_pwd@localhost:5432/test_db"
@@ -120,6 +120,11 @@ spec:
               value: "amqp://guest:guest@localhost:5672"
             - name: ALLOW_DEVICE_REGISTRATION
               value: "True"
+            - name: LOG_CONFIG
+              value: logconf.notification.json
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
 
         - name: envoy
           image: ${CACTUS_ENVOY_APP_IMAGE_V13_BETA_STORAGE}
@@ -136,6 +141,7 @@ spec:
             periodSeconds: 2
             timeoutSeconds: 2
             failureThreshold: 60 # 2 minutes of failure
+            
           env:
             - name: DATABASE_URL
               value: "postgresql+asyncpg://test_user:test_pwd@localhost/test_db"
@@ -149,6 +155,8 @@ spec:
               value: "True"
             - name: STATIC_REGISTRATION_PIN
               value: "11111"
+            - name: LOG_CONFIG
+              value: logconf.server.json
 
           volumeMounts:
             - name: shared
@@ -177,6 +185,8 @@ spec:
               value: "admin"
             - name: ADMIN_PASSWORD
               value: "password"
+            - name: LOG_CONFIG
+              value: logconf.admin.json
           readinessProbe:
             # NOTE - this should be swapped to /status/health?check_data=false as soon as the 1.3-beta-storage images are updated
             httpGet:
@@ -188,3 +198,6 @@ spec:
             initialDelaySeconds: 2
             periodSeconds: 2
             failureThreshold: 60 # 2 minutes of failure
+          volumeMounts:
+            - name: shared
+              mountPath: /shared

@@ -42,6 +42,10 @@ spec:
           value: ${CACTUS_PLATFORM_VERSION}
         - name: CACTUS_PLATFORM_SUPPORT_EMAIL
           value: ${CACTUS_PLATFORM_SUPPORT_EMAIL}
+        - name: CACTUS_ORCHESTRATOR_REQUEST_TIMEOUT_DEFAULT
+          value: "180"
+        - name: CACTUS_ORCHESTRATOR_REQUEST_TIMEOUT_SPAWN
+          value: "300"
 ---
 apiVersion: v1
 kind: Service
