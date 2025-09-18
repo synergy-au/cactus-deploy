@@ -108,7 +108,7 @@ spec:
 
         - name: taskiq-worker
           image: ${CACTUS_ENVOY_APP_IMAGE_V12}
-          command: ["taskiq", "worker", "envoy.notification.main:broker", "envoy.notification.task.check", "envoy.notification.task.transmit"]
+          command: ["taskiq", "worker", "--no-configure-logging", "envoy.notification.main:broker", "envoy.notification.task.check", "envoy.notification.task.transmit"]
           env:
             - name: DATABASE_URL
               value: "postgresql+asyncpg://test_user:test_pwd@localhost:5432/test_db"
