@@ -51,9 +51,9 @@ spec:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 2
-          periodSeconds: 2
-          failureThreshold: 60 # 2 minutes of failure
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 36 # 3 minutes of failure
         volumeMounts:
           - name: shared
             mountPath: /shared
@@ -134,9 +134,9 @@ spec:
             httpGet:
               path: /status/version?check_data=false
               port: 8000
-            initialDelaySeconds: 2
-            periodSeconds: 2
-            failureThreshold: 60 # 2 minutes of failure
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 36 # 3 minutes of failure
           env:
             - name: DATABASE_URL
               value: "postgresql+asyncpg://test_user:test_pwd@localhost/test_db"
@@ -186,9 +186,9 @@ spec:
             httpGet:
               path: /status/health?check_data=false
               port: 8001
-            initialDelaySeconds: 2
-            periodSeconds: 2
-            failureThreshold: 60 # 2 minutes of failure
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 36 # 3 minutes of failure
           volumeMounts:
             - name: shared
               mountPath: /shared
