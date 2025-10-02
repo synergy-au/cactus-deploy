@@ -51,9 +51,9 @@ spec:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 2
-          periodSeconds: 2
-          failureThreshold: 60 # 2 minutes of failure
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 36 # 3 minutes of failure
 
         volumeMounts:
           - name: shared
@@ -137,10 +137,9 @@ spec:
                 - sh
                 - -c
                 - nc -z localhost 8000
-            initialDelaySeconds: 2
-            periodSeconds: 2
-            timeoutSeconds: 2
-            failureThreshold: 60 # 2 minutes of failure
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 36 # 3 minutes of failure
             
           env:
             - name: DATABASE_URL
@@ -195,9 +194,9 @@ spec:
               httpHeaders:
                 - name: Authorization
                   value: Basic YWRtaW46cGFzc3dvcmQ=
-            initialDelaySeconds: 2
-            periodSeconds: 2
-            failureThreshold: 60 # 2 minutes of failure
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 36 # 3 minutes of failure
           volumeMounts:
             - name: shared
               mountPath: /shared
