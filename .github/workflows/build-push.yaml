@@ -7,6 +7,7 @@ on:
 
 env:
   ACR_NAME: cactusimageregistry.azurecr.io
+  GHCR_NAME: ghcr.io/synergy-au
 
 jobs:
   build-and-push:
@@ -24,6 +25,13 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        with: 
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Extract tag
         id: extract_tag
         run: echo "IMAGE_TAG=${GITHUB_REF##*/release-}" >> "$GITHUB_ENV"
@@ -35,25 +43,35 @@ jobs:
       - name: cactus-orchestrator
         run: |
           docker build -t ${ACR_NAME}/cactus-orchestrator:${IMAGE_TAG} --build-arg CACTUS_ORCHESTRATOR_VERSION="${CACTUS_ORCHESTRATOR_VERSION}" ./docker/cactus-orchestrator
+          docker build -t ${GHCR_NAME}/cactus-orchestrator:latest --build-arg CACTUS_ORCHESTRATOR_VERSION="${CACTUS_ORCHESTRATOR_VERSION}" ./docker/cactus-orchestrator
           docker push ${ACR_NAME}/cactus-orchestrator:${IMAGE_TAG}
+          docker push ${GHCR_NAME}/cactus-orchestrator:latest
 
       - name: cactus-runner
         run: |
           docker build -t ${ACR_NAME}/cactus-runner:${IMAGE_TAG} --build-arg CACTUS_RUNNER_VERSION="${CACTUS_RUNNER_VERSION}" ./docker/cactus-runner
+          docker build -t ${GHCR_NAME}/cactus-runner:latest --build-arg CACTUS_RUNNER_VERSION="${CACTUS_RUNNER_VERSION}" ./docker/cactus-runner
           docker push ${ACR_NAME}/cactus-runner:${IMAGE_TAG}
+          docker push ${GHCR_NAME}/cactus-runner:latest
 
       - name: cactus-teststack-init
         run: |
           docker build -t ${ACR_NAME}/cactus-teststack-init:${IMAGE_TAG} --build-arg ENVOY_VERSION="${ENVOY_VERSION}" ./docker/cactus-teststack-init
+          docker build -t ${GHCR_NAME}/cactus-teststack-init:latest --build-arg ENVOY_VERSION="${ENVOY_VERSION}" ./docker/cactus-teststack-init
           docker push ${ACR_NAME}/cactus-teststack-init:${IMAGE_TAG}
+          docker push ${GHCR_NAME}/cactus-teststack-init:latest
 
       - name: cactus-ui
         run: |
           docker build -t ${ACR_NAME}/cactus-ui:${IMAGE_TAG} --build-arg CACTUS_UI_VERSION="${CACTUS_UI_VERSION}" ./docker/cactus-ui
+          docker build -t ${GHCR_NAME}/cactus-ui:latest --build-arg CACTUS_UI_VERSION="${CACTUS_UI_VERSION}" ./docker/cactus-ui
           docker push ${ACR_NAME}/cactus-ui:${IMAGE_TAG}
+          docker push ${GHCR_NAME}/cactus-ui:latest
 
       - name: envoy
         run: |
           docker build -t ${ACR_NAME}/cactus-envoy:${IMAGE_TAG} --build-arg ENVOY_VERSION="${ENVOY_VERSION}" ./docker/envoy
+          docker build -t ${GHCR_NAME}/cactus-envoy:latest --build-arg ENVOY_VERSION="${ENVOY_VERSION}" ./docker/envoy
           docker push ${ACR_NAME}/cactus-envoy:${IMAGE_TAG}
+          docker push ${GHCR_NAME}/cactus-envoy:latest
 
