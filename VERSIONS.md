@@ -95,4 +95,6 @@ The following table is a historical log between platform release tags and the co
 | 74 | `9c3ce15d7988bd75cdfca1b5c19f2191cc3ca6a2` | `a42b104069ba868181d90d4ea40e20289eaf0ca4` | `09ec4ea81e0a073641429a2935b39ba26920e184` | `1281cfab7a63fc62aeb40fe35f8cc29ab41a4f4a` |
 | 74-v1.3-beta_storage | `9c3ce15d7988bd75cdfca1b5c19f2191cc3ca6a2` | `cb83061751ee1ad65739d8ef3811e1f23b765ab5` | `09ec4ea81e0a073641429a2935b39ba26920e184` | `f7870648250152ca04bdae5a05a5fe683b74ce00` |
 | 75-v1.3-beta_storage-rc1 | `9c3ce15d7988bd75cdfca1b5c19f2191cc3ca6a2` | `6f8718c3f4ae4c548b1e4e13b94a224f9e76e1b5` | `09ec4ea81e0a073641429a2935b39ba26920e184` | `a151383946ebdb0d5889785f15208b3b5aa81ba9` |
+| 75 | `9c3ce15d7988bd75cdfca1b5c19f2191cc3ca6a2` | `v1.0.0` | `v1.0.0` | `v1.0.0` |
+| 75-v1.3-beta_storage | `9c3ce15d7988bd75cdfca1b5c19f2191cc3ca6a2` | `v1.0.0-storage.0.1.0` | `v1.0.0` | `v1.0.0-storage.0.4.0` |
 
