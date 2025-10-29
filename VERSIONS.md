@@ -81,3 +81,5 @@ The following table is a historical log between platform release tags and the co
 | 76 | `c230f9b45b0943fd4fa1f5abf0f3f326055daa81` | `v1.0.1` | `v1.0.0` | `v1.0.0` |
 | 77 | `baf137c585b75271b0d9aa5c8aec0c5560a10c16` | `v1.0.2` | `v1.0.1` | `v1.0.0` |
 | 78 | `baf137c585b75271b0d9aa5c8aec0c5560a10c16` | `v1.0.3` | `v1.1.0` | `v1.0.0` |
+| 79 | `baf137c585b75271b0d9aa5c8aec0c5560a10c16` | `v1.0.3` | `v1.1.1` | `v1.0.0` |
+
