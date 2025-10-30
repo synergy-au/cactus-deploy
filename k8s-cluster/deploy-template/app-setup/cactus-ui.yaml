@@ -46,6 +46,11 @@ spec:
           value: "180"
         - name: CACTUS_ORCHESTRATOR_REQUEST_TIMEOUT_SPAWN
           value: "300"
+        - name: BANNER_MESSAGE
+          value: ${BANNER_MESSAGE}
+        - name: LOGIN_BANNER_MESSAGE
+          value: ${LOGIN_BANNER_MESSAGE}
+
 ---
 apiVersion: v1
 kind: Service
