@@ -86,7 +86,7 @@ LOGIN_BANNER_MESSAGE=''
 2. Create the server signing chain (Double check the FQDN that will be used in the SAN) `./create-cert.sh cactus 1 server-chain 1 envoy.cecs.anu.edu.au 1`
 3. Create the cactus client signing chain `./create-cert.sh cactus 1 cactus-chain 2`
 4. You will now have the following subdirectories with certificates/keys
-  * `serca/` For the root CA certificate
+  * `cactus/` For the root CA certificate
   * `server-chain/` Contains the MCA/MICA used to sign the utility server certificate
   * `cactus-chain/` Contains the MCA/MICA that will be used to sign all client certificates (device and aggregator)
   * `envoy.cecs.anu.edu.au/` Contains the signed server certificate/key (as well as a full CA chain version of the cert)
@@ -134,7 +134,7 @@ microk8s kubectl apply -f ./ingress/user-interface-ingress.yaml -n test-orchestr
 
 ```
 k8s create secret generic -n test-execution cert-serca --from-file=ca.crt=<path-to-serca.cert.pem>
-k8s create secret generic -n test-execution cert-mca --from-file=ca.crt=<path-to-mca.cert.pem>
+k8s create secret generic -n test-execution cert-mca-cactus --from-file=ca.crt=<path-to-mca.cert.pem>
 ```
 
 7. Add TLS certs/keys as a kubernetes secrets in the `test-execution` namespace. We will be utilising the certs/keys from the earlier PKI step
@@ -145,7 +145,7 @@ k8s create secret generic -n test-execution cert-mca --from-file=ca.crt=<path-to
 k8s create secret tls tls-mica-cactus -n test-execution --cert <path-to-cactus-chain/mica.cert.pem> --key <path-to-cactus-chain/mica.key.pem>
 
 # For the utility server certificate (ensure you use the fullchain.pem)
-k8s create secret tls tls-utility-server-ingress -n test-execution --cert <path-to-envoy.cecs.anu.edu.au/envoy.cecs.anu.edu.au.fullchain.pem> --key <path-to-cactus-chain/mica.key.pem>
+k8s create secret tls tls-utility-server-ingress -n test-execution --cert <path-to-envoy.cecs.anu.edu.au/envoy.cecs.anu.edu.au.fullchain.pem> --key <path-to-envoy.cecs.anu.edu.au/envoy.cecs.anu.edu.au.key.pem>
 ```
 
 
