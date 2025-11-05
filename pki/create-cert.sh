@@ -229,6 +229,7 @@ fi
 SERVER_DIR="./$SERVER_DNS"
 SERVER_KEY_FILE="$SERVER_DIR/$SERVER_DNS.key.pem"
 SERVER_CERT_FILE="$SERVER_DIR/$SERVER_DNS.cert.pem"
+SERVER_CERT_BUNDLE_FILE="$SERVER_DIR/$SERVER_DNS.fullchain.pem"
 SERVER_CSR_FILE="$SERVER_DIR/.csr.pem"
 SERVER_PUB_FILE="$SERVER_DIR/.pub.der"
 SERVER_CFG_FILE="$SERVER_DIR/.openssl.cnf"
@@ -267,8 +268,12 @@ DNS.1 = $SERVER_DNS
 EOL
     openssl req -new -key "$SERVER_KEY_FILE" -out "$SERVER_CSR_FILE" -config "$SERVER_CFG_FILE" -subj "/" || { echo "Failure to generate CSR"; exit 1; }
     openssl x509 -req -in "$SERVER_CSR_FILE" -CA "$MICA_CERT_FILE" -CAkey "$MICA_KEY_FILE" -set_serial "$SERVER_SERIAL" -out "$SERVER_CERT_FILE" -days $days_until_9999 -extfile "$SERVER_CFG_FILE" -extensions server -sha256
+
+    cat "$SERVER_CERT_FILE" "$MICA_CERT_FILE" "$MCA_CERT_FILE" > "$SERVER_CERT_BUNDLE_FILE"
+
     echo "Generated: $SERVER_KEY_FILE" 
     echo "Generated: $SERVER_CERT_FILE" 
+    echo "Generated: $SERVER_CERT_BUNDLE_FILE" 
 else
     echo "Server key '$SERVER_KEY_FILE' already exists in '$SERVER_DIR/'. Skipping server cert generation."
 fi

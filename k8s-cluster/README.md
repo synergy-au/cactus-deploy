@@ -72,14 +72,27 @@ CACTUS_ORCHESTRATOR_BASEURL='https://cactus-orchestrator-service.test-orchestrat
 CACTUS_ORCHESTRATOR_AUDIENCE='<audience>' # defined in authorisation server, e.g. Auth0
 CACTUS_PLATFORM_VERSION='v<x.x.x>'
 CACTUS_PLATFORM_SUPPORT_EMAIL='<support@email>'
+BANNER_MESSAGE=''
+LOGIN_BANNER_MESSAGE=''
 ```
 
 4. The `templates-to-manifests.sh` script copies the `deploy-template` directory and applies environment variables to the Kubernetes manifest templates. Usage:
 ```
-./templates-to-manfests.sh deploy-template/ /home/k8suser/active-deploy/ cactus.env
+./templates-to-manifests.sh deploy-template/. ~/active-deploy ./cactus.env
 ```
 
-## (3) Cluster configuration (./cluster-setup) 
+## (3) PKI Creation
+1. In the `../pki` directory is a script `create-cert.sh` that you will be running to generate a SERCA and two MCA/MICA chains (one for server certificates, the other for cactus client certificates)
+2. Create the server signing chain (Double check the FQDN that will be used in the SAN) `./create-cert.sh cactus 1 server-chain 1 envoy.cecs.anu.edu.au 1`
+3. Create the cactus client signing chain `./create-cert.sh cactus 1 cactus-chain 2`
+4. You will now have the following subdirectories with certificates/keys
+  * `cactus/` For the root CA certificate
+  * `server-chain/` Contains the MCA/MICA used to sign the utility server certificate
+  * `cactus-chain/` Contains the MCA/MICA that will be used to sign all client certificates (device and aggregator)
+  * `envoy.cecs.anu.edu.au/` Contains the signed server certificate/key (as well as a full CA chain version of the cert)
+
+
+## (4) Cluster configuration (./cluster-setup) 
 1. Apply at-rest-encryption to the microk8s secret store. Run the `setup-encryption.sh` script. -this step may be subject to change in the future
 
 2. We make three namespaces (1) for test execution resources (2) for test orchestration resources (3) for the template resources we clone:
@@ -110,22 +123,33 @@ microk8s kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name":
 ```
 5. Create the ingress load-balancer service and ingress resources
 ```
-microk8s kubectl apply -f ./ingress/lets-encrypt-issuer.yaml -n test-execution
 microk8s kubectl apply -f ./ingress/lets-encrypt-issuer.yaml -n test-orchestration
 microk8s kubectl apply -f ./ingress/load-balancer-svc.yaml -n ingress
 microk8s kubectl apply -f ./ingress/test-execution-ingress.yaml -n test-execution
 microk8s kubectl apply -f ./ingress/user-interface-ingress.yaml -n test-orchestration
 ```
 
-6. Add custom CA certificate and key files as a Kubernetes Secrets in the `test-execution` namespace. We need two secrets:
-    1. For Ingress (contains the CA cert only) to validate the client certificate.
-    2. For signing client certificates (contains both the CA certificate and key) in the orchestrator app when a new certificate is requested.
+6. Add custom CA certificates as Kubernetes secrets in the `test-execution` namespace. We need to upload the certs from the earlier PKI step:
+    * The certificates listed below will likely be in subdirectories under the `../pki` directory (assuming `./create-cert.sh` was executed there)
+
 ```
-k8s create secret generic -n test-execution tls-ca-certificate --from-file=ca.crt=<path-to-ca.crt>
-k8s create secret tls tls-ca-cert-key-pair -n test-execution --cert <path-to-ca.crt> --key <path-to-unencrypted-ca.key>
+k8s create secret generic -n test-execution cert-serca --from-file=ca.crt=<path-to-serca.cert.pem>
+k8s create secret generic -n test-execution cert-mca-cactus --from-file=ca.crt=<path-to-mca.cert.pem>
 ```
 
-## (4) K8s resource setup (./app-setup)
+7. Add TLS certs/keys as a kubernetes secrets in the `test-execution` namespace. We will be utilising the certs/keys from the earlier PKI step
+    * certs/keys listed below will likely be in subdirectories under the `../pki` directory (assuming `./create-cert.sh` was executed there)
+
+```
+# For signing client certs
+k8s create secret tls tls-mica-cactus -n test-execution --cert <path-to-cactus-chain/mica.cert.pem> --key <path-to-cactus-chain/mica.key.pem>
+
+# For the utility server certificate (ensure you use the fullchain.pem)
+k8s create secret tls tls-utility-server-ingress -n test-execution --cert <path-to-envoy.cecs.anu.edu.au/envoy.cecs.anu.edu.au.fullchain.pem> --key <path-to-envoy.cecs.anu.edu.au/envoy.cecs.anu.edu.au.key.pem>
+```
+
+
+## (5) K8s resource setup (./app-setup)
 1. Create Kubernetes Secrets for the applications. NOTE: Refer to the specific applications repository for details regarding the variable being stored in the secret store.
 ```
 # cactus-orchestrator (https://github.com/bsgip/cactus-orchestrator)
@@ -154,7 +178,7 @@ microk8s kubectl apply -f cactus-orchestrator.yaml -n test-orchestration
 microk8s kubectl apply -f envoy-teststack.yaml -n teststack-templates
 ```
 
-## (5) Set up the database
+## (6) Set up the database
 
 The database setup is needed for the app. 
 
