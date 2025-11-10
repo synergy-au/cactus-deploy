@@ -121,7 +121,28 @@ microk8s kubectl create secret docker-registry acr-token --docker-server=<somere
 microk8s kubectl patch serviceaccount pod-creator -p '{"imagePullSecrets": [{"name": "acr-token"}]}' --namespace test-orchestration # orchestrator app account
 microk8s kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "acr-token"}]}' --namespace test-orchestration # default account, UI app uses this
 ```
+
+
+
 5. Create the ingress load-balancer service and ingress resources
+
+Force TLSv1.2 (as per 2030.5)
+```
+# You will need to run the below edits for EACH of the following config maps
+microk8s kubectl edit configmaps -n ingress nginx-ingress-tcp-microk8s-conf
+microk8s kubectl edit configmaps -n ingress nginx-load-balancer-microk8s-conf
+
+#
+# Add the following ('data' should be at the root of the YAML)
+# data:
+#   ssl-protocols: TLSv1.2
+
+# Rollout the config
+microk8s kubectl rollout restart ds -n ingress nginx-ingress-microk8s-controller
+microk8s kubectl rollout status ds -n ingress nginx-ingress-microk8s-controller
+```
+
+Create ingress rules:
 ```
 microk8s kubectl apply -f ./ingress/lets-encrypt-issuer.yaml -n test-orchestration
 microk8s kubectl apply -f ./ingress/load-balancer-svc.yaml -n ingress
