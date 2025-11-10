@@ -107,3 +107,10 @@ The following table is a historical log between platform release tags and the co
 | 80-v1.3-beta_storage | `baf137c585b75271b0d9aa5c8aec0c5560a10c16` | `v1.0.4-storage.0.3.0` | `v1.1.1` | `v1.0.0-storage.0.4.0` |
 | 81 | `v1.1.0` | `v1.1.0` | `v1.1.1` | `v1.0.0` |
 | 81-v1.3-beta_storage | `v1.1.0` | `v1.1.0-storage.0.4.0` | `v1.1.1` | `v1.0.0-storage.0.4.0` |
+| 82 | `v1.1.1` | `v1.1.0` | `v1.1.1` | `v1.0.0` |
+| 83 | `v1.1.2` | `v1.1.0` | `v1.1.1` | `v1.0.0` |
+| 84 | `v1.2.0` | `v1.1.1` | `v1.2.0` | `v1.0.0` |
+| 85 | `v1.2.1` | `v1.2.0` | `v1.2.1` | `v1.1.0` |
+| 86 | `v1.3.0` | `v1.2.0` | `v1.2.1` | `v1.1.0` |
+| 87 | `v1.3.1` | `v1.2.0` | `v1.2.1` | `v1.1.0` |
+| 87-v1.3-beta_storage | `v1.3.1` | `v1.2.0-storage.0.4.0` | `v1.2.1` | `v1.1.0-storage.0.4.0` |
