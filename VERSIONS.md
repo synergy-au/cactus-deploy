@@ -95,4 +95,5 @@ The following table is a historical log between platform release tags and the co
 | 90 | `v1.3.4` | `v1.2.1` | `v1.2.1` | `v1.1.0` |
 | 91 | `v1.3.5` | `v1.2.1` | `v1.2.1` | `v1.1.0` |
 | 92 | `v1.3.6` | `v1.2.1` | `v1.2.1` | `v1.1.0` |
+| 93 | `v1.3.7` | `v1.2.1` | `v1.3.0` | `v1.1.0` |
 
