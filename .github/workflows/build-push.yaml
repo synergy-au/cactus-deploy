@@ -51,16 +51,17 @@ jobs:
         run: |
           IMAGE=${{ matrix.image }}
           BUILD_ARG=""
+          CTX_DIR=${IMAGE}
           case $IMAGE in
             cactus-orchestrator) BUILD_ARG="--build-arg CACTUS_ORCHESTRATOR_VERSION=${CACTUS_ORCHESTRATOR_VERSION}" ;;
             cactus-runner) BUILD_ARG="--build-arg CACTUS_RUNNER_VERSION=${CACTUS_RUNNER_VERSION}" ;;
             cactus-teststack-init) BUILD_ARG="--build-arg ENVOY_VERSION=${ENVOY_VERSION}" ;;
             cactus-ui) BUILD_ARG="--build-arg CACTUS_UI_VERSION=${CACTUS_UI_VERSION}" ;;
-            cactus-envoy) BUILD_ARG="--build-arg ENVOY_VERSION=${ENVOY_VERSION}" ;;
+            cactus-envoy) BUILD_ARG="--build-arg ENVOY_VERSION=${ENVOY_VERSION}" CTX_DIR="envoy";;
           esac
 
-          docker build -t ${ACR_NAME}/${IMAGE}:${IMAGE_TAG} $BUILD_ARG ./docker/${IMAGE}
-          docker build -t ${GHCR_NAME}/${IMAGE}:latest $BUILD_ARG ./docker/${IMAGE}
+          docker build -t ${ACR_NAME}/${IMAGE}:${IMAGE_TAG} $BUILD_ARG ./docker/${CTX_DIR}
+          docker build -t ${GHCR_NAME}/${IMAGE}:latest $BUILD_ARG ./docker/${CTX_DIR}
 
           docker push ${ACR_NAME}/${IMAGE}:${IMAGE_TAG}
           docker push ${GHCR_NAME}/${IMAGE}:latest
