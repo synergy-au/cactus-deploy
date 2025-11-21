@@ -13,7 +13,14 @@ jobs:
   build-and-push:
     name: Build and Push Docker Images
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        image:
+          - cactus-orchestrator
+          - cactus-runner
+          - cactus-teststack-init
+          - cactus-ui
+          - cactus-envoy
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -40,38 +47,20 @@ jobs:
         id: extract_versions_lock
         run: cat docker/versions.lock >> "$GITHUB_ENV"
 
-      - name: cactus-orchestrator
+      - name: Build and Push ${{ matrix.image }}
         run: |
-          docker build -t ${ACR_NAME}/cactus-orchestrator:${IMAGE_TAG} --build-arg CACTUS_ORCHESTRATOR_VERSION="${CACTUS_ORCHESTRATOR_VERSION}" ./docker/cactus-orchestrator
-          docker build -t ${GHCR_NAME}/cactus-orchestrator:latest --build-arg CACTUS_ORCHESTRATOR_VERSION="${CACTUS_ORCHESTRATOR_VERSION}" ./docker/cactus-orchestrator
-          docker push ${ACR_NAME}/cactus-orchestrator:${IMAGE_TAG}
-          docker push ${GHCR_NAME}/cactus-orchestrator:latest
+          IMAGE=${{ matrix.image }}
+          BUILD_ARG=""
+          case $IMAGE in
+            cactus-orchestrator) BUILD_ARG="--build-arg CACTUS_ORCHESTRATOR_VERSION=${CACTUS_ORCHESTRATOR_VERSION}" ;;
+            cactus-runner) BUILD_ARG="--build-arg CACTUS_RUNNER_VERSION=${CACTUS_RUNNER_VERSION}" ;;
+            cactus-teststack-init) BUILD_ARG="--build-arg ENVOY_VERSION=${ENVOY_VERSION}" ;;
+            cactus-ui) BUILD_ARG="--build-arg CACTUS_UI_VERSION=${CACTUS_UI_VERSION}" ;;
+            cactus-envoy) BUILD_ARG="--build-arg ENVOY_VERSION=${ENVOY_VERSION}" ;;
+          esac
 
-      - name: cactus-runner
-        run: |
-          docker build -t ${ACR_NAME}/cactus-runner:${IMAGE_TAG} --build-arg CACTUS_RUNNER_VERSION="${CACTUS_RUNNER_VERSION}" ./docker/cactus-runner
-          docker build -t ${GHCR_NAME}/cactus-runner:latest --build-arg CACTUS_RUNNER_VERSION="${CACTUS_RUNNER_VERSION}" ./docker/cactus-runner
-          docker push ${ACR_NAME}/cactus-runner:${IMAGE_TAG}
-          docker push ${GHCR_NAME}/cactus-runner:latest
+          docker build -t ${ACR_NAME}/${IMAGE}:${IMAGE_TAG} $BUILD_ARG ./docker/${IMAGE}
+          docker build -t ${GHCR_NAME}/${IMAGE}:latest $BUILD_ARG ./docker/${IMAGE}
 
-      - name: cactus-teststack-init
-        run: |
-          docker build -t ${ACR_NAME}/cactus-teststack-init:${IMAGE_TAG} --build-arg ENVOY_VERSION="${ENVOY_VERSION}" ./docker/cactus-teststack-init
-          docker build -t ${GHCR_NAME}/cactus-teststack-init:latest --build-arg ENVOY_VERSION="${ENVOY_VERSION}" ./docker/cactus-teststack-init
-          docker push ${ACR_NAME}/cactus-teststack-init:${IMAGE_TAG}
-          docker push ${GHCR_NAME}/cactus-teststack-init:latest
-
-      - name: cactus-ui
-        run: |
-          docker build -t ${ACR_NAME}/cactus-ui:${IMAGE_TAG} --build-arg CACTUS_UI_VERSION="${CACTUS_UI_VERSION}" ./docker/cactus-ui
-          docker build -t ${GHCR_NAME}/cactus-ui:latest --build-arg CACTUS_UI_VERSION="${CACTUS_UI_VERSION}" ./docker/cactus-ui
-          docker push ${ACR_NAME}/cactus-ui:${IMAGE_TAG}
-          docker push ${GHCR_NAME}/cactus-ui:latest
-
-      - name: envoy
-        run: |
-          docker build -t ${ACR_NAME}/cactus-envoy:${IMAGE_TAG} --build-arg ENVOY_VERSION="${ENVOY_VERSION}" ./docker/envoy
-          docker build -t ${GHCR_NAME}/cactus-envoy:latest --build-arg ENVOY_VERSION="${ENVOY_VERSION}" ./docker/envoy
-          docker push ${ACR_NAME}/cactus-envoy:${IMAGE_TAG}
-          docker push ${GHCR_NAME}/cactus-envoy:latest
-
+          docker push ${ACR_NAME}/${IMAGE}:${IMAGE_TAG}
+          docker push ${GHCR_NAME}/${IMAGE}:latest
