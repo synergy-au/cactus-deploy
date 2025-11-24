@@ -22,8 +22,9 @@ jobs:
 
       - id: build-matrix
         run: |
-          cat <<EOF >> $GITHUB_OUTPUT
-          matrix={
+          cat <<EOF >> "$GITHUB_OUTPUT"
+          matrix=<<JSON
+          {
            "include": [
             {
               "IMAGE_NAME": "cactus-orchestrator",
@@ -63,6 +64,7 @@ jobs:
             }
            ]
           }
+          JSON
           EOF
 
   build-and-push:
