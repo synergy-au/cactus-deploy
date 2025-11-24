@@ -9,9 +9,68 @@ env:
   ACR_NAME: cactusimageregistry.azurecr.io
 
 jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract Version
+        id: extract_versions_lock
+        run: cat docker/versions.lock >> "$GITHUB_ENV"
+
+      - id: build-matrix
+        run: |
+          cat <<EOF >> $GITHUB_OUTPUT
+          matrix={
+           "include": [
+            {
+              "IMAGE_NAME": "cactus-orchestrator",
+              "VERSION_NAME": "CACTUS_ORCHESTRATOR_VERSION",
+              "VERSION_VALUE": "${CACTUS_ORCHESTRATOR_VERSION}",
+              "BUILD_DIR": "./docker/cactus-orchestrator"
+            },
+            {
+              "IMAGE_NAME": "cactus-runner",
+              "VERSION_NAME": "CACTUS_RUNNER_VERSION",
+              "VERSION_VALUE": "${CACTUS_RUNNER_VERSION}",
+              "BUILD_DIR": "./docker/cactus-runner"
+            },
+            {
+              "IMAGE_NAME": "cactus-teststack-init",
+              "VERSION_NAME": "ENVOY_VERSION",
+              "VERSION_VALUE": "${ENVOY_VERSION}",
+              "BUILD_DIR": "./docker/cactus-teststack-init"
+            },
+            {
+              "IMAGE_NAME": "cactus-ui",
+              "VERSION_NAME": "CACTUS_UI_VERSION",
+              "VERSION_VALUE": "${CACTUS_UI_VERSION}",
+              "BUILD_DIR": "./docker/cactus-ui"
+            },
+            {
+              "IMAGE_NAME": "cactus-envoy",
+              "VERSION_NAME": "ENVOY_VERSION",
+              "VERSION_VALUE": "${ENVOY_VERSION}",
+              "BUILD_DIR": "./docker/envoy"
+            },
+            {
+              "IMAGE_NAME": "cactus-client-notifications",
+              "VERSION_NAME": "CACTUS_CLIENT_NOTIFICATIONS_VERSION",
+              "VERSION_VALUE": "${CACTUS_CLIENT_NOTIFICATIONS_VERSION}",
+              "BUILD_DIR": "./docker/cactus-client-notifications"
+            }
+           ]
+          }
+          EOF
+
   build-and-push:
     name: Build and Push Docker Images
+    needs: prepare-matrix
     runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
 
     steps:
       - name: Checkout code
@@ -28,32 +87,10 @@ jobs:
         id: extract_tag
         run: echo "IMAGE_TAG=${GITHUB_REF##*/release-}" >> "$GITHUB_ENV"
 
-      - name: Extract Version
-        id: extract_versions_lock
-        run: cat docker/versions.lock >> "$GITHUB_ENV"
-
-      - name: cactus-orchestrator
+      - name: build-push
         run: |
-          docker build -t ${ACR_NAME}/cactus-orchestrator:${IMAGE_TAG} --build-arg CACTUS_ORCHESTRATOR_VERSION="${CACTUS_ORCHESTRATOR_VERSION}" ./docker/cactus-orchestrator
-          docker push ${ACR_NAME}/cactus-orchestrator:${IMAGE_TAG}
+          docker build -t ${ACR_NAME}/${IMAGE_NAME}:${IMAGE_TAG} --build-arg ${VERSION_NAME}="${VERSION_VALUE}" "${BUILD_DIR}"
+          docker push ${ACR_NAME}/${IMAGE_NAME}:${IMAGE_TAG}
 
-      - name: cactus-runner
-        run: |
-          docker build -t ${ACR_NAME}/cactus-runner:${IMAGE_TAG} --build-arg CACTUS_RUNNER_VERSION="${CACTUS_RUNNER_VERSION}" ./docker/cactus-runner
-          docker push ${ACR_NAME}/cactus-runner:${IMAGE_TAG}
-
-      - name: cactus-teststack-init
-        run: |
-          docker build -t ${ACR_NAME}/cactus-teststack-init:${IMAGE_TAG} --build-arg ENVOY_VERSION="${ENVOY_VERSION}" ./docker/cactus-teststack-init
-          docker push ${ACR_NAME}/cactus-teststack-init:${IMAGE_TAG}
-
-      - name: cactus-ui
-        run: |
-          docker build -t ${ACR_NAME}/cactus-ui:${IMAGE_TAG} --build-arg CACTUS_UI_VERSION="${CACTUS_UI_VERSION}" ./docker/cactus-ui
-          docker push ${ACR_NAME}/cactus-ui:${IMAGE_TAG}
-
-      - name: envoy
-        run: |
-          docker build -t ${ACR_NAME}/cactus-envoy:${IMAGE_TAG} --build-arg ENVOY_VERSION="${ENVOY_VERSION}" ./docker/envoy
-          docker push ${ACR_NAME}/cactus-envoy:${IMAGE_TAG}
+      
 
