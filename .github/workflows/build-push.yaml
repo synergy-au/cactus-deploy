@@ -23,7 +23,7 @@ jobs:
       - id: build-matrix
         run: |
           cat <<EOF >> "$GITHUB_OUTPUT"
-          matrix=<<JSON
+          matrix<<JSON
           {
            "include": [
             {
