@@ -6,7 +6,6 @@ metadata:
   labels:
     app: cactus-client-notifications
 spec:
-  serviceAccountName: pod-creator
   containers:
     - name: environment
       image: ${CACTUS_CLIENT_NOTIFICATIONS_IMAGE}
