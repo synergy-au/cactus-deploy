@@ -10,17 +10,71 @@ env:
   GHCR_NAME: ghcr.io/synergy-au
 
 jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract Version
+        id: extract_versions_lock
+        run: cat docker/versions.lock >> "$GITHUB_ENV"
+
+      - id: build-matrix
+        run: |
+          cat <<EOF >> "$GITHUB_OUTPUT"
+          matrix<<JSON
+          {
+           "include": [
+            {
+              "IMAGE_NAME": "cactus-orchestrator",
+              "VERSION_NAME": "CACTUS_ORCHESTRATOR_VERSION",
+              "VERSION_VALUE": "${CACTUS_ORCHESTRATOR_VERSION}",
+              "BUILD_DIR": "./docker/cactus-orchestrator"
+            },
+            {
+              "IMAGE_NAME": "cactus-runner",
+              "VERSION_NAME": "CACTUS_RUNNER_VERSION",
+              "VERSION_VALUE": "${CACTUS_RUNNER_VERSION}",
+              "BUILD_DIR": "./docker/cactus-runner"
+            },
+            {
+              "IMAGE_NAME": "cactus-teststack-init",
+              "VERSION_NAME": "ENVOY_VERSION",
+              "VERSION_VALUE": "${ENVOY_VERSION}",
+              "BUILD_DIR": "./docker/cactus-teststack-init"
+            },
+            {
+              "IMAGE_NAME": "cactus-ui",
+              "VERSION_NAME": "CACTUS_UI_VERSION",
+              "VERSION_VALUE": "${CACTUS_UI_VERSION}",
+              "BUILD_DIR": "./docker/cactus-ui"
+            },
+            {
+              "IMAGE_NAME": "cactus-envoy",
+              "VERSION_NAME": "ENVOY_VERSION",
+              "VERSION_VALUE": "${ENVOY_VERSION}",
+              "BUILD_DIR": "./docker/envoy"
+            },
+            {
+              "IMAGE_NAME": "cactus-client-notifications",
+              "VERSION_NAME": "CACTUS_CLIENT_NOTIFICATIONS_VERSION",
+              "VERSION_VALUE": "${CACTUS_CLIENT_NOTIFICATIONS_VERSION}",
+              "BUILD_DIR": "./docker/cactus-client-notifications"
+            }
+           ]
+          }
+          JSON
+          EOF
+
   build-and-push:
     name: Build and Push Docker Images
+    needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        image:
-          - cactus-orchestrator
-          - cactus-runner
-          - cactus-teststack-init
-          - cactus-ui
-          - cactus-envoy
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -43,25 +97,9 @@ jobs:
         id: extract_tag
         run: echo "IMAGE_TAG=${GITHUB_REF##*/release-}" >> "$GITHUB_ENV"
 
-      - name: Extract Version
-        id: extract_versions_lock
-        run: cat docker/versions.lock >> "$GITHUB_ENV"
-
-      - name: Build and Push ${{ matrix.image }}
+      - name: build-push
         run: |
-          IMAGE=${{ matrix.image }}
-          BUILD_ARG=""
-          CTX_DIR=${IMAGE}
-          case $IMAGE in
-            cactus-orchestrator) BUILD_ARG="--build-arg CACTUS_ORCHESTRATOR_VERSION=${CACTUS_ORCHESTRATOR_VERSION}" ;;
-            cactus-runner) BUILD_ARG="--build-arg CACTUS_RUNNER_VERSION=${CACTUS_RUNNER_VERSION}" ;;
-            cactus-teststack-init) BUILD_ARG="--build-arg ENVOY_VERSION=${ENVOY_VERSION}" ;;
-            cactus-ui) BUILD_ARG="--build-arg CACTUS_UI_VERSION=${CACTUS_UI_VERSION}" ;;
-            cactus-envoy) BUILD_ARG="--build-arg ENVOY_VERSION=${ENVOY_VERSION}" CTX_DIR="envoy";;
-          esac
+          docker build -t ${ACR_NAME}/${{ matrix.IMAGE_NAME }}:${IMAGE_TAG} -t ${GHCR_NAME}/${{ matrix.IMAGE_NAME }}:latest --build-arg ${{ matrix.VERSION_NAME }}="${{ matrix.VERSION_VALUE }}" "${{ matrix.BUILD_DIR }}"
+          docker push ${ACR_NAME}/${{ matrix.IMAGE_NAME }}:${IMAGE_TAG}
+          docker push ${GHCR_NAME}/${{ matrix.IMAGE_NAME }}:latest
 
-          docker build -t ${ACR_NAME}/${IMAGE}:${IMAGE_TAG} $BUILD_ARG ./docker/${CTX_DIR}
-          docker build -t ${GHCR_NAME}/${IMAGE}:latest $BUILD_ARG ./docker/${CTX_DIR}
-
-          docker push ${ACR_NAME}/${IMAGE}:${IMAGE_TAG}
-          docker push ${GHCR_NAME}/${IMAGE}:latest

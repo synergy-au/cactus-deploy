@@ -95,11 +95,12 @@ LOGIN_BANNER_MESSAGE=''
 ## (4) Cluster configuration (./cluster-setup) 
 1. Apply at-rest-encryption to the microk8s secret store. Run the `setup-encryption.sh` script. -this step may be subject to change in the future
 
-2. We make three namespaces (1) for test execution resources (2) for test orchestration resources (3) for the template resources we clone:
+2. We make four namespaces (1) for test execution resources (2) for test orchestration resources (3) for the template resources we clone:
 ```
     1. microk8s kubectl create namespace test-execution
     2. microk8s kubectl create namespace test-orchestration
     3. microk8s kubectl create namespace teststack-templates
+    4. microk8s kubectl create namespace client-notifications
 ```
 3. Create a privileged service account in the `test-orchestration` namespace. This account has permissions to create and destroy resources and is used by the harness-orchestrator/test-orchestration pods.
    1. in the active-dploy folder =, go to the cluster setup to execute this script.
@@ -118,8 +119,10 @@ microk8s kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name":
 ```
 microk8s kubectl create secret docker-registry acr-token --docker-server=<somereg.io> --docker-username="<token-name>" --docker-password="<token-pwd>" --namespace test-orchestration
 
+
 microk8s kubectl patch serviceaccount pod-creator -p '{"imagePullSecrets": [{"name": "acr-token"}]}' --namespace test-orchestration # orchestrator app account
 microk8s kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "acr-token"}]}' --namespace test-orchestration # default account, UI app uses this
+microk8s kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "acr-token"}]}' --namespace client-notifications
 ```
 
 
@@ -148,6 +151,9 @@ microk8s kubectl apply -f ./ingress/lets-encrypt-issuer.yaml -n test-orchestrati
 microk8s kubectl apply -f ./ingress/load-balancer-svc.yaml -n ingress
 microk8s kubectl apply -f ./ingress/test-execution-ingress.yaml -n test-execution
 microk8s kubectl apply -f ./ingress/user-interface-ingress.yaml -n test-orchestration
+microk8s kubectl apply -f ./ingress/cactus-client-notifications-ingress.yaml -n client-notifications
+
+
 ```
 
 6. Add custom CA certificates as Kubernetes secrets in the `test-execution` namespace. We need to upload the certs from the earlier PKI step:
@@ -197,6 +203,11 @@ microk8s kubectl apply -f cactus-orchestrator.yaml -n test-orchestration
 4. Currently, we create 'template' resources that represent a complete envoy test environments. These are cloned when a client requests a new test environment. Create the template resources with:
 ```
 microk8s kubectl apply -f envoy-teststack.yaml -n teststack-templates
+```
+
+5. We create the cactus-client-notification service. This manages the dynamic webhooks for the cactus-client (server test harness).
+```
+microk8s kubectl apply -f cactus-client-notifications.yaml -n client-notifications
 ```
 
 ## (6) Set up the database
