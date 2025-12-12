@@ -135,3 +135,6 @@ The following table is a historical log between platform release tags and the co
 | 103 | `v1.4.4` | `v1.3.1` | `v1.3.5` | `v1.2.1` |
 | 104 | `v1.4.5` | `v1.4.0` | `v1.3.6` | `v1.2.2` |
 | 104-v1.3-beta_storage | `v1.4.5` | `v1.4.0-storage.0.5.0` | `v1.3.6` | `v1.2.2-storage.0.7.0` |
+| 105 | `v1.5.0` | `v1.4.1` | `v1.3.7` | `v1.2.2` |
+| 106 | `v1.5.0` | `v1.4.2` | `v1.3.7` | `v1.2.2` |
+| 106-v1.3-beta_storage | `v1.5.0` | `v1.4.2-storage.0.5.0` | `v1.3.7` | `v1.2.2-storage.0.7.0` |
