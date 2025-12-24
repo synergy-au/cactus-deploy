@@ -112,3 +112,4 @@ The following table is a historical log between platform release tags and the co
 | 107 | `v1.5.1` | `v1.4.2` | `v1.3.7` | `v1.2.2` |
 | 108 | `v1.5.2` | `v1.4.2` | `v1.3.8` | `v1.2.2` |
 | 109 | `v1.5.2` | `v1.5.0` | `v1.3.8` | `v1.3.0` |
+| 110 | `v1.6.0` | `v1.6.0` | `v1.4.0` | `v1.3.0` |
