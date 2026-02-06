@@ -73,7 +73,7 @@ jobs:
 
             echo "# $NAME" >> versions/changes
             echo ""
-            if [ "$old_ver" == "$ver" ]; then
+            if [ "$old_ver" != "$ver" ]; then
               echo "No change from \`$ver\`" >> versions/changes
             else
               echo "\`$old_ver\` changed to \`$ver\`" >> versions/changes
