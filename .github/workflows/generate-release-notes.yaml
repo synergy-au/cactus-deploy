@@ -38,7 +38,7 @@ jobs:
         id: notes
         run: |
           echo "# CACTUS Deploy ${{ steps.tags.outputs.current_tag }}" > versions/notes
-          echo "The following are the change notes for every software component from `${{ steps.tags.outputs.previous_tag }}` to `${{ steps.tags.outputs.current_tag }}`" >> versions/notes
+          echo "The following are the change notes for every software component from \`${{ steps.tags.outputs.previous_tag }}\` to \`${{ steps.tags.outputs.current_tag }}\`" >> versions/notes
           echo "" >> versions/notes
           while IFS='=' read -r dep ver; do
             [ -z "$dep" ] && continue
@@ -66,7 +66,7 @@ jobs:
             else
               echo "" >> versions/changes
               echo "> [!CAUTION]" >> versions/changes
-              echo "> Unrecognised Dependency `$dep`" >> versions/changes
+              echo "> Unrecognised Dependency \`$dep\`" >> versions/changes
               continue
             fi
 
@@ -74,9 +74,9 @@ jobs:
             echo "# $NAME" >> versions/changes
             echo ""
             if [ "$old_ver" == "$ver" ]; then
-              echo "No change from `$ver`" >> versions/changes
+              echo "No change from \`$ver\`" >> versions/changes
             else
-              echo "`$old_ver` changed to `$ver`" >> versions/changes
+              echo "\`$old_ver\` changed to \`$ver\`" >> versions/changes
               echo "" >> versions/changes
               gh release view $ver --repo "${ORG}/${REPO}" --json body -q .body >> versions/changes
               # echo "" >> versions/changes
