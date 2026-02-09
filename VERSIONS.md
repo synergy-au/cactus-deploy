@@ -124,3 +124,4 @@ The following table is a historical log between platform release tags and the co
 | 119 | `v1.6.9` | `v1.6.9` | `v1.4.2` | `v1.3.1` |
 | 120 | `v1.6.10` | `v1.6.10` | `v1.4.3` | `v1.3.2` |
 | 121 | `v1.6.10` | `v1.6.11` | `v1.4.4` | `v1.3.2` |
+| 122 | `v1.6.11` | `v1.6.11` | `v1.4.4` | `v1.3.2` |
