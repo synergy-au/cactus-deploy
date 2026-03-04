@@ -47,6 +47,13 @@ spec:
             value: admin
           - name: ENVOY_ADMIN_BASICAUTH_PASSWORD
             value: password
+          # Optional: cap on-disk request/response pairs retained during a test (default 5000).
+          # Also controls max request_history entries serialized into the ZIP.
+          # - name: MAX_REQUEST_PAIRS
+          #   value: "5000"
+          # Optional: max bytes copied from each log file into the ZIP archive, tail of file (default 32 MB).
+          # - name: MAX_LOG_FILE_BYTES
+          #   value: "32000000"
         readinessProbe:
           httpGet:
             path: /health
