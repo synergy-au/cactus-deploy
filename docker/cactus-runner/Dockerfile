@@ -33,5 +33,5 @@ ENV APP_HOST='0.0.0.0'
 ENV APP_PORT='8080'
 
 # run app
-CMD ["sh", "-c", "exec gunicorn cactus_runner.app.main:app --bind ${APP_HOST}:${APP_PORT} --worker-class aiohttp.GunicornWebWorker"]
+CMD ["sh", "-c", "exec gunicorn cactus_runner.app.main:app --bind ${APP_HOST}:${APP_PORT} --worker-class aiohttp.GunicornWebWorker --timeout 60"]
 
