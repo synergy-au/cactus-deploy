@@ -37,9 +37,9 @@ spec:
     spec:
       # ADD START
       hostAliases:
-      - ip: "12.34.56.79"  # This will the CLUSTER-IP you discovered above
+      - ip: "12.34.56.79"  # This will be the CLUSTER-IP you discovered above (include quotes)
         hostnames:
-        - "cactus.cecs.anu.edu.au" # This will be the DNS host of your server
+        - "cactus.cecs.anu.edu.au" # This will be the DNS host of your server (include quotes)
       # ADD END
       containers:
       - args:
