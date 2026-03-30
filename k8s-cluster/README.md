@@ -30,7 +30,8 @@ microk8s enable ingress dns
     1. Discover your CLUSTER-IP `microk8s kubectl get svc -n ingress -o wide` - Look for the `CLUSTER-IP` column
     2. `microk8s kubectl edit deployment cert-manager -n cert-manager`
       * You will be adding the following under: `spec.template.spec`
-      * ```
+
+```
 spec:
   template:
     spec:
