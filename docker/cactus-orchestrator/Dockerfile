@@ -23,6 +23,7 @@ USER appuser
 # Copy env
 COPY --from=build --chown=appuser:appuser /usr/local/lib/ /usr/local/lib/
 COPY --from=build --chown=appuser:appuser /usr/local/bin/ /usr/local/bin/
+RUN plotly_get_chrome
 
 # conf
 ENV PYTHONDONTWRITEBYTECODE=1
