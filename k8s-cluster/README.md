@@ -26,7 +26,27 @@ microk8s enable cert-manager
 microk8s enable ingress dns
 
 ```
-8. Enable the IP advertiser addon: `microk8s enable metallb`. It will ask for an IP range for the load balancer - since we only need one, assign a free static IP that you want to expose for your FQDN. It will request a range, just provide a single value range e.g. 192.168.1.1-192.168.1.1
+8. *Optional* - If you're having issues getting a certificate due to a 404 during challenge propagation (eg `Waiting for HTTP-01 challenge propagation: wrong status code '404', expected '200'` appearing when describing challenges/orders) - you may have a networking quirk that prevents the `cert-manager` plugin from checking that your LetsEncrypt ACME challenge is properly enabled. Likely cause is the outgoing HTTP request from the cluster to the cluster (essentially a loopback) is not getting through. You can deploy a host alias to the cluster nginx. 
+    1. Discover your CLUSTER-IP `microk8s kubectl get svc -n ingress -o wide` - Look for the `CLUSTER-IP` column
+    2. `microk8s kubectl edit deployment cert-manager -n cert-manager`
+      * You will be adding the following under: `spec.template.spec`
+
+```
+spec:
+  template:
+    spec:
+      # ADD START
+      hostAliases:
+      - ip: "12.34.56.79"  # This will be the CLUSTER-IP you discovered above (include quotes)
+        hostnames:
+        - "cactus.cecs.anu.edu.au" # This will be the DNS host of your server (include quotes)
+      # ADD END
+      containers:
+      - args:
+        ...
+```
+
+9. Enable the IP advertiser addon: `microk8s enable metallb`. It will ask for an IP range for the load balancer - since we only need one, assign a free static IP that you want to expose for your FQDN. It will request a range, just provide a single value range e.g. 192.168.1.1-192.168.1.1
     1. If this is set up in the DER-Lab its from high importance to engage with the admin team and find an IP address that can be used for the load balancer
     2. The IP from the Load balancer needs to be linked to a virtual IP on the firewall
     3. NAT rules need to be set in between the Virtual IP and the Load balancer (This can be copied from an exisiting system)
